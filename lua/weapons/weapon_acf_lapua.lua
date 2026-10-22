@@ -1,0 +1,107 @@
+AddCSLuaFile()
+
+include("weapon_acf_base.lua")
+
+
+SWEP.Base                   = "weapon_acf_base"
+SWEP.PrintName              = "ACF Lapua"
+
+SWEP.UseHands               = true
+SWEP.ViewModel              = "models/weapons/cstrike/c_snip_awp.mdl"
+
+SWEP.ShotSound				= Sound(")weapons/awp/awp1.wav")
+SWEP.WorldModel             = "models/weapons/w_snip_awp.mdl"
+SWEP.HoldType               = "ar2"
+
+SWEP.Slot                   = 3
+SWEP.SlotPos                = 0
+
+SWEP.Spawnable              = true
+SWEP.AdminOnly              = false
+
+SWEP.m_WeaponDeploySpeed    = 1.1
+SWEP.Spread                 = 0.25
+SWEP.RecoilMod              = 0.5
+
+SWEP.Primary.ClipSize       = 5
+SWEP.Primary.DefaultClip    = 105
+SWEP.Primary.Ammo           = "AR2"
+SWEP.Primary.Automatic      = false
+SWEP.Primary.Delay          = 1.25
+SWEP.CarrySpeedMul			= 1.0
+
+SWEP.Caliber                = 8.61 -- mm diameter of bullet
+SWEP.ACFProjMass            = 0.0162 -- kg of projectile
+SWEP.ACFType                = "AP"
+SWEP.ACFMuzzleVel           = 925 -- m/s of bullet leaving the barrel
+SWEP.Tracer                 = 0
+
+SWEP.CalcDistance			= 100
+SWEP.CalcDistance2			= 300
+
+SWEP.IronSightPos           = Vector(-7.4, -6, 2.3)
+
+SWEP.Scope					= true
+SWEP.Zoom					= 10
+SWEP.HasDropCalc			= true
+
+SWEP.AimFocused				= 0.01
+SWEP.AimUnfocused			= 3
+SWEP.Recovery				= 0.25
+
+SWEP.Handling = 0.5 -- Preserve original bloom while halving firing spread.
+
+SWEP:SetupACFBullet()
+
+function SWEP:PrimaryAttack()
+	if self:Clip1() <= 0 then
+		self:EmitSound( "Weapon_Pistol.Empty" )
+		self:Reload()
+		self:SetNextPrimaryFire(CurTime() + 0.25)
+
+		self.LastShot = CurTime()
+		if SERVER then self:SetNWFloat("lastshot", self.LastShot) end
+
+		return false
+	end
+
+	local Punch = self:GetPunch()
+	self:Recoil(Punch)
+	self:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
+
+	if not self:CanPrimaryAttack() then return end
+
+	local Ply = self:GetOwner()
+	local AimMod = self:GetAimMod()
+
+	if SERVER then
+		local Aim = self:ResolveAim()
+		local Right = Aim:Right()
+		local Up = Aim:Up()
+
+		local Cone = math.tan(math.rad(self.Spread * AimMod))
+		local randUnitSquare = (Up * (2 * math.random() - 1) + Right * (2 * math.random() - 1))
+		local Spread = randUnitSquare:GetNormalized() * Cone * (math.random() ^ (1 / ACF.GunInaccuracyBias))
+		local Dir = (Aim:Forward() + Spread):GetNormalized()
+
+		self:ShootBullet(Ply:GetShootPos(), Dir)
+	else
+		self.TempOut = true
+		timer.Simple(self.Primary.Delay * 0.8, function() self.TempOut = false end)
+	end
+
+	self:PostShot(1)
+end
+
+-- Additional 2x accuracy while aiming; retains existing hip-fire behavior.
+function SWEP:GetAimMod()
+    local modifier = self.BaseClass.GetAimMod(self)
+    local owner = self:GetOwner()
+    if IsValid(owner) and owner:IsPlayer() and self:GetNWBool("iron", false)
+        and not owner:IsSprinting() then
+        return modifier * 0.5
+    end
+    return modifier
+end
+
+SWEP.SubCategory = "Weapons"
