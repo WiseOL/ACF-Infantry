@@ -10,7 +10,7 @@ This customized version is based on [ACF-3-SWEPs](https://github.com/ACF-Team/AC
 - Rifles, pistols, machine guns, a shotgun, and a rebar crossbow.
 - Wire-guided anti-tank missiles and an infrared anti-aircraft launcher.
 - Smoke, fire, nerve gas, and Venomous Agent X grenades.
-- Suit armor, healing syringes, EPO, and persistent thermal goggles.
+- Suit armor, healing equipment, EPO, and persistent thermal goggles.
 - A compact vertical HUD anchored to the bottom-right corner.
 - Weapon safety toggles, magazine/reserve displays, and launcher status information.
 - Organized **Weapons**, **Launchers**, **Grenades**, and **Utility** folders beneath **ACF Infantry** in the Q menu's Weapons tab.
@@ -23,9 +23,9 @@ This customized version is based on [ACF-3-SWEPs](https://github.com/ACF-Team/AC
 | Matching ACF missile support | AT-3, BGM-71E, and FIM-92 missile classes, guidance, motors, and fuzes |
 | Counter-Strike: Source content | CSS firearm/grenade models, animations, and the EPO defuser model |
 | [Wiremod](https://github.com/wiremod/wire) with FLIR support | Thermal goggles and camera-controller thermal integration |
-| Bundled Rust syringe assets, credited below | Health stim models, materials, injection animations, and sounds; no separate syringe addon required |
+| Bundled FIM-92 Stinger assets, credited below | Dedicated Stinger view/world models, materials, deploy sound, and seeker tone |
 
-The syringe models, materials, and sounds from the supplied Rust Medical Syringe addon are included. Its original SWEP and healing system are not included. Clients must receive the bundled assets through your normal Workshop or server content download setup; a separate syringe addon installation is not required.
+The health stim temporarily uses the stock HL2 health-vial prop (`models/healthvial.mdl`). It needs no Rust syringe addon. The previous Rust syringe models, materials, and sounds have been removed. The separate experimental Medical Shot compile kit is not part of this release.
 
 Wiremod's FLIR support is required for thermal vision. The remainder of the pack still requires ACF. Compatibility with other ACF forks or older APIs should be checked rather than assumed.
 
@@ -50,14 +50,14 @@ Do not leave the addon as an unextracted ZIP. Avoid an extra nested directory su
 | Supported select-fire firearms | Use + right click, normally **E + RMB** | Switch automatic/semi-automatic mode |
 | Firearms and launchers | **R** | Reload |
 | Firearms and launchers | **B** | Toggle safety |
-| Guided missile launchers | Hold right click, then left click | Aim and launch |
+| Guided missile launchers | Hold right click, then left click | Aim and launch; Stinger requires a two-second target lock |
 | AT-3 / TOW | Continue holding aim with the launcher equipped | Guide the missile toward the current aiming point |
 | Grenades | Hold left click, then release | Pull the pin and throw |
 | Grenades | Right click | Pull the pin and automatically drop just ahead of your feet |
 | Grenades | **R** | Ready another grenade from reserve |
 | Suit armor | Left click | Apply 25 armor |
-| Health stim | Left click | Inject yourself |
-| Health stim | Right click | Inject a nearby living player or NPC; keep aiming until the injection finishes |
+| Health stim | Left click | Apply the health vial to yourself |
+| Health stim | Right click | Apply the health vial to a nearby living player or NPC; keep aiming until application finishes |
 | EPO | Left click | Use EPO |
 | Thermal goggles | Left click while equipped, or **N** while carried | Toggle thermal vision |
 
@@ -130,7 +130,7 @@ Projectile and propellant lengths below are ammunition-conversion inputs in cent
 
 - **Bazooka:** three-second arming period after equipping. Sprinting is blocked during arming, walking is reduced by 25%, and sprint speed is reduced by 30% once armed.
 - **TOW:** three-second arming period after equipping. Sprinting is blocked during arming, walking is reduced by 50%, and sprint speed is reduced by 50% once armed.
-- **Stinger:** no additional equip-arming period or launcher movement penalty. The native missile fuze still has its own arming behavior. Infrared guidance operates autonomously after launch, with a radio proximity fuze configured for approximately 3 meters. The Stinger disables the shared sprint viewmodel rotation to keep its shoulder-mounted model in position.
+- **Stinger:** no additional equip-arming period or launcher movement penalty. The native missile fuze still has its own arming behavior. Infrared guidance operates autonomously after launch, with a radio proximity fuze configured for approximately 3 meters. The dedicated FIM-92 model uses upstream sight/idle offsets, eased aiming, reduced aimed sway, and its own sprint pose. It requires a two-second lock while aiming at an eligible ACF target; a seeker tone and blue/red target marker show acquisition and lock. Losing sight, lowering the weapon, reloading, enabling safety, or changing targets clears/restarts acquisition. The locked target is passed to native infrared guidance after launch. There is no added movement penalty.
 - Wire-guided missiles follow the player's current aiming point while the owner is alive, holding aim, and keeping that launcher active. Native wire range and wire-break behavior still apply.
 
 For compatibility with existing saves or bindings, the TOW retains the entity class `weapon_acf_panzerschreck`. The SMAW retains `weapon_acf3r_smaw`, and the XM25 retains `weapon_acf_grenadelauncher`.
@@ -189,19 +189,19 @@ The native VSS field is named `SmokeWPRatio`; its value is passed directly to AC
 - Using it at the cap does not spend a charge.
 - Displays an upright armor item without first-person hands or arms, with the plate facing the player and offset from the crosshair.
 - The plate rests closer to the player and moves upward and toward the face during a successful application, then returns to its resting position.
-- Uses `models/items/battery.mdl`; servers replacing that model will display their replacement asset.
+- Uses the bundled armor plate at `models/acf_infantry/armor_plate.mdl`, including its materials and application sound. No separate battery-replacement addon is required, and standard HEV batteries are not replaced.
 
 ### ACF Health Stim
 
 - Heals **50 HP over 10 seconds**, capped at **100 HP** or the target's lower maximum health.
 - Provides **15% damage reduction for 20 seconds**, independently of the healing timer.
 - Can be used at full health for protection without raising health above the cap.
-- Left click injects the user; right click injects a nearby living player or NPC.
-- Healing another target requires maintaining aim/contact until the injection animation finishes. Breaking contact cancels without consuming the stim.
-- Each pickup supplies one syringe charge. Additional pickups add charges to the same ammunition pool (up to 100). Each successful injection consumes one charge; another injection can begin once its animation finishes.
+- Left click treats the user; right click treats a nearby living player or NPC.
+- Healing another target requires maintaining aim/contact until the application delay finishes. Breaking contact cancels without consuming the stim.
+- Each pickup supplies one medical charge. Additional pickups add charges to the same ammunition pool (up to 100). Each successful application consumes one charge; another use can begin once the application delay finishes.
 - Reusing a stim on an affected target restarts healing at 50 HP over the next 10 seconds and refreshes 15% damage reduction to 20 seconds. Old healing is replaced, not added, and damage reduction does not stack. The 100 HP cap remains.
-- Uses the Rust syringe's model, sounds, and named self/other injection animations.
-- Uses the original syringe addon's native weapon animation activities for draw, idle, self-injection, and injection of another target. Playback is started through `SendWeaponAnim`; the addon does not force the animation cycle every frame. The self-injection sequence lasts approximately 3.4 seconds; injection of another target lasts approximately 2.64 seconds. A 0.2-second buffer keeps the syringe equipped through the final animation frames. Animation behavior still requires in-game verification.
+- Temporary presentation uses `models/healthvial.mdl` for the equipped and world model, with no first-person hands/arms and a 0.85-second lift toward the face and back, similar to Suit Armor. It uses the stock health-kit sound, not syringe sounds.
+- Application timing remains 3.6 seconds for self-use and 2.84 seconds for another target. The short visual lift does not change these fixed use delays; the health-vial prop does not contain syringe injection animations. Self-healing begins on accepted use; healing another target begins when the contact/application delay completes.
 - Uses no activation chat messages. Player effects are cleared on death, spawn, or disconnect.
 
 ### ACF Erythropoietin (EPO)
@@ -265,13 +265,7 @@ acf_infantry_missile_diagnostics
 
 The trace lasts approximately 120 seconds and reports native conversion, launch, guidance, detonation, and HE damage information to the console. It does not change damage results.
 
-For health-stim animation troubleshooting, equip the stim and run this in the **client console**, then inject within 15 seconds:
-
-```text
-acf_infantry_stim_diagnostics
-```
-
-The temporary trace prints the active model, available injection sequences, animation cycle, playback rate, and use timing in both client and server consoles. Include both sets of `[ACF Stim trace ...]` lines in a bug report. It does not change healing or animation playback.
+The temporary health-vial prop has no injection sequences. The existing `acf_infantry_stim_diagnostics` command can still report its model and use timing, but missing `inject`/`inject_other` sequences are expected for this placeholder.
 
 The safety toggle is also available as a client console command:
 
@@ -283,12 +277,12 @@ acf_infantry_toggle_safety
 
 | Problem | Check |
 | --- | --- |
-| Missing/error models or missing sounds | CSS content, the bundled syringe assets, matching server/client content, and model-replacement addons |
+| Missing/error models or missing sounds | CSS content, the bundled Stinger assets, matching server/client content, and model-replacement addons |
 | Missiles fail to launch, guide, or damage ACF | Correct VSS/ACF missile APIs, required native missile classes, a clean restart, and the missile diagnostic command |
 | Thermal vision unavailable | Wiremod FLIR support and possession of the goggles |
 | Old weapons, old HUD, or duplicate entries | Remove older copies of this addon and reconnect after a server restart |
 | Missing Q-menu folders | Updated addon files, a current Garry's Mod build, and a rebuilt/reopened spawn menu |
-| Armor item looks different from the expected battery | Another addon may replace `models/items/battery.mdl` |
+| Missing armor plate model or texture | Ensure the bundled `models/acf_infantry/armor_plate.*` and `materials/models/items/armorplate/` files reached the client, then restart and reconnect |
 | Healing another player cancels | Maintain aim/contact and ensure the target is alive |
 
 When reporting a bug, include the weapon/item name, server ACF version or commit, Lua error text, and steps to reproduce it. For missile problems, include diagnostic console output. Animation, model placement, and multiplayer prediction changes should be verified in Garry's Mod; standalone Lua checks do not replace in-game testing.
@@ -298,7 +292,10 @@ When reporting a bug, include the weapon/item name, server ACF version or commit
 - **ACF-3-SWEPs contributors / LiddulBOFH** — original infantry weapon addon and foundation.
 - **ACF Team and VSS fork contributors** — ACF framework, ballistics, damage, ammunition, and missile systems.
 - **Wiremod contributors** — FLIR and camera-controller functionality.
-- **Darsu** — Rust syringe animation, porting, materials, and Lua work; **Facepunch** — original Rust assets; **Pavlendia** — rig credit listed by the syringe addon.
+- **Rocks** — [Vanilla-Styled FIM-92 Stinger](https://steamcommunity.com/sharedfiles/filedetails/?id=3807683332), the model/deploy assets incorporated through upstream ACF-3-SWEPs.
+- **FrazierWing** — [SideWinderGrowl.wav](https://freesound.org/people/FrazierWing/sounds/569666/), CC0, used for the Stinger seeker tone.
+- Stinger presentation and seeker logic adapted from upstream ACF-3-SWEPs commit [`b52ea0c854c837d2d241c8ef0e1113e106f4f2eb`](https://github.com/ACF-Team/ACF-3-SWEPs/commit/b52ea0c854c837d2d241c8ef0e1113e106f4f2eb); the pack retains its VSS missile adapter and configured payload, damage path, 2-second reload, 100 reserve rounds, and movement behavior.
 - **Valve** — Source and Counter-Strike: Source game assets used through mounted content.
+- **Armor Plate Replacement** — armor model, materials, and sound from the user-supplied `gmpublisher.gma`; its metadata lists “Author Name” rather than identifying its creator. These assets are third-party content, not covered by the pack's MIT code license.
 
-**Code license: MIT**, matching [ACF-3](https://github.com/ACF-Team/ACF-3). The original SWEP code already includes the MIT license in [LICENSE.md](LICENSE.md). Keep that notice and any applicable third-party notices. The code license does not grant ownership of Valve, Rust, Workshop, or other third-party assets. Bundled syringe assets retain their original authorship; other game assets are supplied through mounted dependencies. Respect the applicable asset licenses and redistribution terms.
+**Code license: MIT**, matching [ACF-3](https://github.com/ACF-Team/ACF-3). The original SWEP code already includes the MIT license in [LICENSE.md](LICENSE.md). Keep that notice and any applicable third-party notices. The code license does not grant ownership of Valve, Workshop, or other third-party assets. Bundled third-party assets retain their original authorship; other game assets are supplied through mounted dependencies. Respect the applicable asset licenses and redistribution terms.

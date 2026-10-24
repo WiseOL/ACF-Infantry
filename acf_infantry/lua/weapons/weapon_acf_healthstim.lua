@@ -1,21 +1,21 @@
 if SERVER then AddCSLuaFile("acf_sweps/hud_theme.lua") end
 if CLIENT and not ACFSwepsTheme then include("acf_sweps/hud_theme.lua") end
 AddCSLuaFile()
-if SERVER then util.AddNetworkString("ACFInfantryStimSequence") end
 
 SWEP.Base = "weapon_base"
 SWEP.PrintName = "ACF Health Stim"
 SWEP.Author = "ACF server customization"
 SWEP.Category = "ACF Infantry"
-SWEP.Instructions = "Left click: Heal yourself. Right click: Heal a nearby player or NPC. +50 HP over 10 seconds (cap 100) and 15% damage reduction for 20 seconds. One charge per injection; repeat use refreshes effects."
+SWEP.Instructions = "Left click: Apply health kit to yourself. Right click: Apply to a nearby player or NPC. +50 HP over 10 seconds (cap 100) and 15% damage reduction for 20 seconds. One charge per injection; repeat use refreshes effects."
 SWEP.Purpose = "Heals up to 100 HP and reduces incoming damage by 15% for 20 seconds."
 SWEP.Spawnable = true
 SWEP.AdminOnly = false
-SWEP.UseHands = true
-SWEP.ViewModel = "models/weapons/darky_m/c_syringe_v2.mdl"
+SWEP.UseHands = false
+SWEP.ViewModel = "models/healthvial.mdl"
 SWEP.ViewModelFOV = 60
-SWEP.WorldModel = "models/weapons/darky_m/w_syringe_v2.mdl"
+SWEP.WorldModel = "models/healthvial.mdl"
 SWEP.HoldType = "slam"
+SWEP.IconOverride = "entities/item_healthvial.png"
 SWEP.Slot = 5
 SWEP.SlotPos = 1
 SWEP.DrawAmmo = false
@@ -39,51 +39,11 @@ function SWEP:Initialize()
     self:SetHoldType(self.HoldType)
 end
 
--- Use the same native weapon activities as the original Rust syringe addon.
--- SendWeaponAnim updates weapon animation state as well as the viewmodel;
--- directly forcing viewmodel sequences leaves that state out of sync.
-local sequenceActivities = {deploy = ACT_VM_DRAW, idle = ACT_VM_IDLE,
-    inject = ACT_VM_THROW, inject_other = ACT_VM_SECONDARYATTACK}
-local sequenceTimes = {deploy = 2.38, idle = 60 / 30, inject = 3.4, inject_other = 2.64}
-function SWEP:PlayStimSequence(name, started, confirmedDuration)
-    local owner = self:GetOwner()
-    local vm = IsValid(owner) and owner:GetViewModel()
-    local duration = sequenceTimes[name] or 1
-    local injection = name == "inject" or name == "inject_other"
-    started = started or CurTime()
-    if IsValid(vm) then
-        local index = vm:LookupSequence(name)
-        if index and index >= 0 then
-            local length = vm:SequenceDuration(index)
-            if length and length > 0 then duration = math.max(duration, length) end
-            local activity = sequenceActivities[name]
-            if activity and vm:SelectWeightedSequence(activity) >= 0 then
-                self:SendWeaponAnim(activity)
-            else
-                -- Fallback for a replacement model without activity bindings.
-                vm:SendViewModelMatchingSequence(index)
-                vm:SetCycle(0)
-            end
-            vm:SetPlaybackRate(1)
-        end
-    end
-    if confirmedDuration then duration = math.max(duration, confirmedDuration) end
-    if CLIENT then
-        if injection then
-            self.StimPlayback = {name = name, started = started, duration = duration}
-        else
-            self.StimPlayback = nil
-        end
-    end
-    if SERVER and IsValid(owner) and owner:IsPlayer() then
-        net.Start("ACFInfantryStimSequence")
-        net.WriteEntity(self)
-        net.WriteString(name)
-        net.WriteFloat(started)
-        net.WriteFloat(duration)
-        net.Send(owner)
-    end
-    return duration
+-- Temporary stock health-kit prop. It has no syringe injection sequences.
+-- Keep the established application timing independent of model animations.
+local sequenceTimes = {deploy = 0.6, idle = 2, inject = 3.4, inject_other = 2.64}
+function SWEP:PlayStimSequence(name)
+    return sequenceTimes[name] or 1
 end
 
 function SWEP:Deploy()
@@ -92,21 +52,6 @@ function SWEP:Deploy()
     self:SetNextPrimaryFire(self.StimIdleAt)
     self:SetNextSecondaryFire(self.StimIdleAt)
     return true
-end
-
-if CLIENT then
-    net.Receive("ACFInfantryStimSequence", function()
-        local weapon, name = net.ReadEntity(), net.ReadString()
-        local started, duration = net.ReadFloat(), net.ReadFloat()
-        if IsValid(weapon) and weapon:GetClass() == "weapon_acf_healthstim" and sequenceTimes[name] then
-            -- Ignore an older idle/deploy event arriving after injection began.
-            if weapon.StimPlayback and started < weapon.StimPlayback.started then return end
-            weapon.PendingStimStart = started
-            weapon.PendingStimDuration = duration
-            weapon.PendingStimSequence = name
-            weapon.PendingStimSequenceUntil = CurTime() + 1
-        end
-    end)
 end
 
 local function Living(target)
@@ -134,18 +79,7 @@ function SWEP:CancelOtherInjection()
 end
 
 function SWEP:Think()
-    if CLIENT then
-        if self.PendingStimSequence then
-            local owner = self:GetOwner()
-            if IsValid(owner) and owner == LocalPlayer() and owner:GetActiveWeapon() == self then
-                self:PlayStimSequence(self.PendingStimSequence, self.PendingStimStart, self.PendingStimDuration)
-                self.PendingStimSequence = nil
-            elseif CurTime() >= self.PendingStimSequenceUntil then
-                self.PendingStimSequence = nil
-            end
-        end
-        return
-    end
+    if CLIENT then return end
     if self.StimTarget then
         local owner = self:GetOwner()
         if not IsValid(owner) or owner:GetActiveWeapon() ~= self
@@ -153,7 +87,7 @@ function SWEP:Think()
             self:CancelOtherInjection()
         else
             if self.StimSoundAt and CurTime() >= self.StimSoundAt then
-                owner:EmitSound("darky_rust.syringe-inject-friend")
+                owner:EmitSound("items/smallmedkit1.wav")
                 self.StimSoundAt = nil
             end
             if CurTime() >= self.StimFinishAt then
@@ -228,7 +162,7 @@ function SWEP:BeginInjection(target, other)
     else
         self:ApplyStim(target)
         timer.Simple(0.3, function()
-            if IsValid(self) and Living(owner) then owner:EmitSound("darky_rust.syringe-inject-self") end
+            if IsValid(self) and Living(owner) then owner:EmitSound("items/smallmedkit1.wav") end
         end)
         timer.Simple(duration, function() if IsValid(self) then self:FinishStimUse() end end)
     end
@@ -285,3 +219,63 @@ end
 
 
 SWEP.SubCategory = "Utility"
+
+if CLIENT then
+    function SWEP:PreDrawViewModel(vm) vm:SetMaterial("engine/occlusionproxy") end
+    function SWEP:PostDrawViewModel(vm) vm:SetMaterial("") end
+    function SWEP:ViewModelDrawn()
+        if not IsValid(self.HealthVialDisplay) then
+            self.HealthVialDisplay = ClientsideModel(self.WorldModel, RENDERGROUP_OPAQUE)
+            if IsValid(self.HealthVialDisplay) then self.HealthVialDisplay:SetNoDraw(true) end
+        end
+        local model = self.HealthVialDisplay
+        if not IsValid(model) then return end
+        local low, high = model:GetModelBounds()
+        local size = high - low
+        local dimensions = {size.x, size.y, size.z}
+        local thin, tall = 1, 1
+        for i = 2, 3 do
+            if dimensions[i] < dimensions[thin] then thin = i end
+            if dimensions[i] > dimensions[tall] then tall = i end
+        end
+        if thin == tall then thin, tall = 1, 3 end
+        local view = EyeAngles()
+        local axes = {}
+        axes[thin], axes[tall] = -view:Forward(), view:Up()
+        if not axes[1] then axes[1] = axes[2]:Cross(axes[3])
+        elseif not axes[2] then axes[2] = axes[3]:Cross(axes[1])
+        else axes[3] = axes[1]:Cross(axes[2]) end
+        local angle = axes[1]:AngleEx(axes[3])
+        local scale = math.min(1, 6 / math.max(dimensions[tall], 0.01))
+        local start = self:GetNWFloat("StimUseStart", -10)
+        -- Match Suit Armor: a brief lift toward the face, then return to rest.
+        -- Presentation timing is independent of the healing/application delay.
+        local progress = math.Clamp((CurTime() - start) / 0.85, 0, 1)
+        local motion = math.sin(progress * math.pi)
+        local center = EyePos() + view:Forward() * (24 - motion * 6)
+            + view:Right() * 8 - view:Up() * (8 - motion * 5)
+        local offset = LocalToWorld((low + high) * (0.5 * scale), Angle(), Vector(), angle)
+        model:SetModelScale(scale, 0)
+        model:SetPos(center - offset)
+        model:SetAngles(angle)
+        model:SetupBones()
+        model:DrawModel()
+    end
+    function SWEP:DrawWorldModel()
+        local owner = self:GetOwner()
+        if not IsValid(owner) then self:DrawModel() return end
+        owner:SetupBones()
+        local bone = owner:LookupBone("ValveBiped.Bip01_R_Hand")
+        local matrix = bone and owner:GetBoneMatrix(bone)
+        if not matrix then self:DrawModel() return end
+        local pos, ang = LocalToWorld(Vector(2, 0, -1), Angle(0, 90, 90), matrix:GetTranslation(), matrix:GetAngles())
+        self:SetRenderOrigin(pos)
+        self:SetRenderAngles(ang)
+        self:DrawModel()
+        self:SetRenderOrigin()
+        self:SetRenderAngles()
+    end
+    function SWEP:OnRemove()
+        if IsValid(self.HealthVialDisplay) then self.HealthVialDisplay:Remove() end
+    end
+end

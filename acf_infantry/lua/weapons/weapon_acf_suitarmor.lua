@@ -11,9 +11,9 @@ SWEP.Purpose = "Adds 25 suit armor per use, capped at 200."
 SWEP.Spawnable = true
 SWEP.AdminOnly = false
 SWEP.UseHands = false
-SWEP.ViewModel = "models/items/battery.mdl"
+SWEP.ViewModel = "models/acf_infantry/armor_plate.mdl"
 SWEP.ViewModelFOV = 60
-SWEP.WorldModel = "models/items/battery.mdl"
+SWEP.WorldModel = "models/acf_infantry/armor_plate.mdl"
 SWEP.IconOverride = "entities/item_battery.png"
 SWEP.HoldType = "slam"
 SWEP.Slot = 5
@@ -57,7 +57,7 @@ function SWEP:PrimaryAttack()
     usesLeft = usesLeft - 1
     self:SetNWInt("ArmorUsesLeft", usesLeft)
     owner:SetArmor(math.min(owner:Armor() + 25, 200))
-    owner:EmitSound("ItemBattery.Touch")
+    owner:EmitSound("acf_infantry/armor_plate_use.wav")
 
     if usesLeft == 0 then
         timer.Simple(0.85, function() if IsValid(self) then self:Remove() end end)
@@ -73,7 +73,7 @@ end
 
 
 if CLIENT then
-    -- Uses the same HEV battery asset as the world model and Q-menu preview.
+    -- Uses the bundled armor plate.
     function SWEP:DrawHUD()
         if ACFSwepsTheme and ACFSwepsTheme.VerticalHUD then return end
         local uiScale = math.Clamp(ScrH() / 1080, 0.75, 1.5)
@@ -88,7 +88,7 @@ if CLIENT then
 
 end
 
--- Render the battery itself at its native scale; no SLAM rig or hand entities.
+-- Render the armor plate without hand or arm entities.
 function SWEP:Deploy()
     self:SetHoldType(self.HoldType)
     local owner = self:GetOwner()
@@ -99,7 +99,7 @@ end
 
 if CLIENT then
     -- Draw a bounds-aligned plate instead of putting a full-size prop against
-    -- the viewmodel camera. Also handles servers that replace the HEV battery.
+    -- the viewmodel camera.
     function SWEP:PreDrawViewModel(vm)
         vm:SetMaterial("engine/occlusionproxy")
     end

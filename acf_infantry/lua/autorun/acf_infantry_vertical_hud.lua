@@ -37,6 +37,10 @@ function T.DrawVerticalHUD()
                 local arming = weapon:GetNW2Float("InfantryArmedAt", 0) - CurTime()
                 Row(rows, "LAUNCHER", reload > 0 and string.format("RELOAD %.1fs", reload)
                     or arming > 0 and string.format("ARMING %.1fs", arming) or "ARMED", reload > 0 and red or blue)
+                if weapon.InfantryLockRequired then
+                    Row(rows, "SEEKER", weapon:IsLocked() and "LOCKED"
+                        or weapon:IsSeeking() and "ACQUIRING" or "NO TARGET", weapon:IsLocked() and red or blue)
+                end
             end
         elseif weapon.GrenadeKind then
             count, capacity = math.max(weapon:Clip1(), 0), 1
@@ -51,7 +55,7 @@ function T.DrawVerticalHUD()
             Row(rows, "PER USE", "+25 ARMOR", blue)
             Row(rows, "PRIMARY", "APPLY ARMOR")
         elseif class == "weapon_acf_healthstim" then
-            Row(rows, "SYRINGES", tostring(ply:GetAmmoCount(weapon.Primary.Ammo)), blue)
+            Row(rows, "MEDICAL CHARGES", tostring(ply:GetAmmoCount(weapon.Primary.Ammo)), blue)
             Row(rows, "HEALING", "+50 HP / 10s", blue)
             Row(rows, "PROTECTION", "15% / 20s")
             Row(rows, "LEFT CLICK", "INJECT SELF")

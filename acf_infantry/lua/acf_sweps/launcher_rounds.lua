@@ -238,6 +238,7 @@ function M.ApplyMissile(weapon)
                 end
             end
             missile:Launch()
+            if self.OnInfantryMissileCreated then self:OnInfantryMissileCreated(missile) end
             Report("Missile launched", self, {
                 projectile = missile.BulletData.ProjLength, propellant = missile.BulletData.PropLength,
                 filler = missile.BulletData.FillerMass})
