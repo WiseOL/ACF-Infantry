@@ -1,6 +1,6 @@
 # ACF Infantry
 
-Don't download this right now; I have to fix the model size, unless you're fine with 254 MiB.
+**Don't download this right now; I have to fix the model size, unless you're fine with 254 MiB.**
 
 <img width="256" height="256" alt="Acfinfantrysmall" src="https://github.com/user-attachments/assets/a35298e0-8669-470d-886c-590ca4325134" />
 
