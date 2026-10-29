@@ -12,25 +12,9 @@ This customized version is based on [ACF-3-SWEPs](https://github.com/ACF-Team/AC
 
 Fire now ignites near the grenade first and spreads outward over approximately 2–2.3 seconds on suitable ground. Patch centers have small random offsets while retaining overlapping coverage; each patch starts dealing damage only once it ignites. Flame timing, size, lifetime, color and motion vary independently between patches. The 15-second duration still starts at detonation, with unchanged 120-unit patch radius, 250-unit maximum reach, character damage, and wall/water checks. Overlapping patches still do not stack damage.
 
-### Health Stim Q-menu image — October 28, 2026
-
-The Health Stim now uses the selected transparent syringe image, with its lime chamber, red cross and slight tilt. The preview preserves the image's proportions and is centered at 75% image scale for consistent menu margins. Only its Q-menu image changes; the Alyx models, injection animations, healing, protection and controls are unchanged.
-
-### Thrown C4 model fix — October 28, 2026
-
-Thrown and planted C4 now uses the donor's separate charge model, `models/krazy/cod4rm/misc/c4.mdl`, with its physics and mesh companion files bundled. The equipped weapon keeps its existing detonator presentation. Throwing, sticking, arming, remote controls and ACF damage settings are unchanged.
-
 ### Automatic XM25 — October 28, 2026
 
 The XM25 now fires automatically while the trigger is held. Its existing 0.3-second shot interval (200 rounds/minute), 12-round magazine, reserve ammunition, accuracy, recoil, and 25 mm HE projectile settings are unchanged.
-
-### C4 and claymore Q-menu previews — October 28, 2026
-
-The C4 and claymore thumbnails now use centered previews at 65% of the tile's available image area, giving them margins consistent with the other items. Their existing upright orientation is preserved. This affects only the Q-menu images; their models, animations, controls and explosive settings are unchanged.
-
-### Javelin Q-menu preview — October 28, 2026
-
-The Javelin menu preview is rotated into a flatter side pose and fitted at 75% of the available rotated-image bounds, keeping it centered with consistent margins. This changes only its Q-menu thumbnail; other icons retain their existing layout. Equipped models, animations, HUD, and weapon settings are unchanged.
 
 ### Javelin scope-entry visibility — October 28, 2026
 
@@ -50,7 +34,6 @@ The Javelin now calls the pack's ammo/status HUD directly in both aimed and unai
 - Named animation playback uses the pack's existing owner-client animation helper, without requiring TFA or a separate HL:A Gear installation. The donor only has one injection sequence, so both self-use and healing another target reuse it, fitted to the existing action delays.
 - Healing remains **50 HP over 10 seconds**, capped at 100 (or the target's lower max health), with **15% damage reduction for 20 seconds**. Charges, repeat-use timer refreshes, other-target range checks, and the HUD remain unchanged. The original stock health-kit use sound is retained; the archive did not contain the donor Lua's referenced `items/medshot4.wav`.
 
-
 The Q-menu folder previously named **Grenades** is now **Throwables and Deployables**, containing the four throwable grenades, C4, and claymore.
 
 ### Javelin presentation and deployable explosives — October 28, 2026
@@ -61,7 +44,7 @@ The Q-menu folder previously named **Grenades** is now **Throwables and Deployab
 
 ### Earlier balance and grenade updates
 
-Compared with [WiseOL/ACF-Infantry](https://github.com/WiseOL/ACF-Infantry) at commit [`c42d059`](https://github.com/WiseOL/ACF-Infantry/commit/c42d059f2967145f18b708c3bc036db9d85b24bb), checked October 26, 2026. This comparison describes the downloadable pack; it does not mean these changes have been pushed to GitHub.
+Compared with [WiseOL/ACF-Infantry](https://github.com/WiseOL/ACF-Infantry) at commit [`c42d059`](https://github.com/WiseOL/ACF-Infantry/commit/c42d059f2967145f18b708c3bc036db9d85b24bb), checked October 26, 2026.
 
 | Area | GitHub baseline | Updated pack |
 | --- | --- | --- |
@@ -98,7 +81,7 @@ File/package checks and targeted Lua checks were completed during these updates.
 | [Wiremod](https://github.com/wiremod/wire) with FLIR support | Thermal goggles and camera-controller thermal integration |
 | Bundled FIM-92 Stinger assets, credited below | Dedicated Stinger view/world models, materials, deploy sound, and seeker tone |
 
-The health stim uses bundled Medishot models and textures from the user-supplied **[TFA] HL:A Gear** archive. Its animation playback uses native Garry's Mod calls, so it needs neither TFA nor the separate donor addon installed. The previous Rust syringe assets and separate experimental Medical Shot compile kit are not part of this release.
+The health stim uses bundled Medishot models and textures from the user-supplied **[TFA] HL:A Gear** archive. Its animation playback uses native Garry's Mod calls, so it needs neither TFA nor the separate donor addon installed.
 
 Wiremod's FLIR support is required for thermal vision. The remainder of the pack still requires ACF. Compatibility with other ACF forks or older APIs should be checked rather than assumed.
 
@@ -394,18 +377,8 @@ When reporting a bug, include the weapon/item name, server ACF version or commit
 
 **Code license: MIT**, matching [ACF-3](https://github.com/ACF-Team/ACF-3). The original SWEP code already includes the MIT license in [LICENSE.md](LICENSE.md). Keep that notice and any applicable third-party notices. The code license does not grant ownership of Valve, Workshop, or other third-party assets. Bundled third-party assets retain their original authorship; other game assets are supplied through mounted dependencies. Respect the applicable asset licenses and redistribution terms.
 
-### Grenade audio
-
-Smoke, nerve gas, and Venomous Agent X use the finite CS:S smoke-grenade burst instead of an unmanaged looping steam sound. Fire audio is stopped on removal in both client and server code, with a client expiry check as well. Grenade damage, duration, radius, fuse, and throw settings are unchanged.
-
-### Grenade contact and fuse
-
-Thrown grenades do not physically collide with players, preventing players from standing on or pinning them. World and prop collision rules remain unchanged. A server fuse timer backs up the existing Think deadline and does not depend on movement or physics sleep. Fire-placement traces ignore characters while retaining wall, ground, and prop checks. Grenade fuse lengths and payload settings are unchanged.
-
 ### Additional bundled presentation assets
 
-Javelin, C4, and claymore presentation assets were extracted from the user-supplied **[TFA] CoD Remastered Explosives Pack** archive. The donor weapon files credit **Krazy** and identify the Call of Duty: Modern Warfare Remastered source. These game/Workshop assets retain their original authorship and applicable terms; they are not covered by this pack's MIT Lua license. This integration supplies separate ACF runtime code and does not bundle or depend on the donor's TFA weapon bases, missile entities, or generic explosion damage code.
+Javelin, C4, and claymore presentation assets were extracted from the user-supplied **[TFA] CoD Remastered Explosives Pack** archive. The donor weapon files credit **Krazy** and identify the Call of Duty: Modern Warfare Remastered source. These game/Workshop assets retain their original authorship and applicable terms. This integration supplies separate ACF runtime code and does not bundle or depend on the donor's TFA weapon bases, missile entities, or generic explosion damage code.
 
 The Medishot model and materials come from the user-supplied **[TFA] HL:A Gear** archive; its healthshot weapon credits **Mazima Gofo**. Half-Life: Alyx game assets retain Valve's authorship and applicable terms. The donor Lua healing code is not included or used, and its TFA base is not a dependency.
-
-The current Health Stim Q-menu image is the user-selected edited syringe illustration, based on the supplied injector image and in-game reference. It replaces the original donor icon in the menu.
