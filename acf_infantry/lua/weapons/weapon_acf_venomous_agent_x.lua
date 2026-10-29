@@ -12,4 +12,4 @@ SWEP.ThrowSpeed = 1000
 SWEP.ThrowUpwardSpeed = 100
 SWEP.FuseTime = 3
 
-SWEP.SubCategory = "Grenades"
+SWEP.SubCategory = "Throwables and Deployables"

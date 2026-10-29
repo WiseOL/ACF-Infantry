@@ -42,6 +42,13 @@ function T.DrawVerticalHUD()
                         or weapon:IsSeeking() and "ACQUIRING" or "NO TARGET", weapon:IsLocked() and red or blue)
                 end
             end
+        elseif weapon.DeployableKind then
+            count, capacity = math.max(weapon:Clip1(), 0), 1
+            Row(rows, "RESERVE", math.max(weapon:Ammo1(), 0))
+            Row(rows, "DEPLOYED", tostring(weapon:GetNW2Int("InfantryDeployedCount", 0)) .. " / 4")
+            Row(rows, "LEFT CLICK", weapon.DeployableKind == "c4" and "THROW CHARGE" or "PLANT MINE")
+            if weapon.DeployableKind == "c4" then Row(rows, "RIGHT CLICK", "DETONATE YOUR C4") end
+            Row(rows, "RECOVER", "USE [E] ON YOUR DEVICE")
         elseif weapon.GrenadeKind then
             count, capacity = math.max(weapon:Clip1(), 0), 1
             Row(rows, "SPARE GRENADES", math.max(weapon:Ammo1(), 0))
@@ -51,7 +58,7 @@ function T.DrawVerticalHUD()
             Row(rows, "RIGHT CLICK", "DROP AT FEET")
         elseif class == "weapon_acf_suitarmor" then
             title = "SUIT ARMOR"
-            count, capacity = ply:Armor(), 200
+            count, capacity = ply:Armor(), 150
             Row(rows, "PER USE", "+25 ARMOR", blue)
             Row(rows, "PRIMARY", "APPLY ARMOR")
         elseif class == "weapon_acf_healthstim" then

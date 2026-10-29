@@ -1,0 +1,14 @@
+ENT.Type = "anim"
+ENT.Base = "base_anim"
+ENT.PrintName = "ACF Infantry Explosive"
+ENT.Spawnable = false
+ENT.DoNotDuplicate = true
+ENT.DisableDuplicator = true
+ENT.C4Filler = 0.5 -- kg TNT-equivalent input to native ACF blast
+ENT.C4FragmentMass = 0.1 -- kg total casing mass
+ENT.ClaymoreFiller = 0.05 -- kg: small omnidirectional blast; forward fragments are separate
+ENT.ClaymoreFragmentMass = 0.02 -- kg native blast casing mass
+ENT.ClaymorePellets = 48
+ENT.ClaymorePelletSpeed = 1000 -- m/s, native ACF AP flight and armor handling
+ENT.ClaymoreRange = 180 -- Source units, proximity trigger range
+ENT.ClaymoreTriggerCos = math.cos(math.rad(40)) -- 80 degree full trigger cone

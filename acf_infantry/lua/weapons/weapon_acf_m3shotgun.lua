@@ -20,6 +20,7 @@ SWEP.AdminOnly              = false
 
 SWEP.m_WeaponDeploySpeed    = 1.1
 SWEP.Spread                 = 1.25
+SWEP.PelletSpread            = 0.9375 -- 25% tighter pellet cone; preserve aim/bloom handling.
 SWEP.RecoilMod              = 0.5
 
 SWEP.NextShell              = 0
@@ -101,7 +102,7 @@ function SWEP:PrimaryAttack()
 		local Dir = (Aim:Forward() + Spread):GetNormalized()
 
 		for _ = 1, 24 do
-			local BCone = math.tan(math.rad(self.Spread))
+			local BCone = math.tan(math.rad(self.PelletSpread))
 			local BrandUnitSquare = (Up * (2 * math.random() - 1) + Right * (2 * math.random() - 1))
 			local BSpread = BrandUnitSquare:GetNormalized() * BCone * (math.random() ^ (1 / ACF.GunInaccuracyBias))
 			local AimSpread = (Dir + BSpread):GetNormalized()

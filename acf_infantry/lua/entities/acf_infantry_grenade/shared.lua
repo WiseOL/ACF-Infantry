@@ -26,3 +26,13 @@ ENT.SmokeProjectile = 17.49 -- cm
 ENT.SmokePropellant = 0.01 -- cm
 ENT.SmokeFillerRatio = 1
 ENT.SmokeWPRatio = 0.07 -- native VSS SmokeWPRatio input; visual only
+
+-- Shared collision rule: players cannot stand on or pin a live grenade.
+-- Keep the projectile group so world/prop and projectile collision rules remain.
+hook.Add("ShouldCollide", "ACFInfantryGrenadePlayerCollision", function(first, second)
+    if not IsValid(first) or not IsValid(second) then return end
+    if (first:GetClass() == "acf_infantry_grenade" and second:IsPlayer())
+        or (second:GetClass() == "acf_infantry_grenade" and first:IsPlayer()) then
+        return false
+    end
+end)

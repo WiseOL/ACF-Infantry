@@ -1,5 +1,5 @@
 if SERVER then AddCSLuaFile() end
-local HeavyWeapons = {weapon_acf_30cal = true, weapon_acf_m249 = true}
+local HeavyWeapons = {weapon_acf_30cal = true, weapon_acf_m249 = true, weapon_acf3r_smaw = true}
 -- Apply a movement cap while held, without overwriting player speed settings.
 -- Native crouch/slow-walk behavior and current EPO speed settings are preserved.
 hook.Add("SetupMove", "ACFInfantryHeavyWeaponSpeed", function(player, move)

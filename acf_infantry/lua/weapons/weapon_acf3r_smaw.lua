@@ -36,8 +36,8 @@ SWEP.CarrySpeedMul			= 1.0
 
 SWEP.UseHybrid				= false
 
--- Native 60 mm cannon APCR. Maximum legal propellant (39 cm), minimum projectile (9 cm).
-SWEP.Caliber = 60
+-- Native 40 mm cannon APCR. Maximum legal propellant (26 cm), minimum projectile (6 cm).
+SWEP.Caliber = 40
 SWEP.ACFProjMass = 1
 SWEP.ACFType = "APCR"
 SWEP.ACFMuzzleVel = 1
@@ -181,8 +181,8 @@ function SWEP:GetAimMod()
 end
 
 
-SWEP.InfantryProjectile = 9.0
-SWEP.InfantryPropellant = 39.00
+SWEP.InfantryProjectile = 6.0
+SWEP.InfantryPropellant = 26.00
 include("acf_sweps/launcher_rounds.lua").ApplyAPCR(SWEP)
 
 SWEP.SubCategory = "Launchers"

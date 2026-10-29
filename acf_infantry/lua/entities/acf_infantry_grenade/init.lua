@@ -25,10 +25,16 @@ function ENT:Initialize()
     self:SetMoveType(MOVETYPE_VPHYSICS)
     self:SetSolid(SOLID_VPHYSICS)
     self:SetCollisionGroup(COLLISION_GROUP_PROJECTILE)
+    self:SetCustomCollisionCheck(true)
     local physics = self:GetPhysicsObject()
     if IsValid(physics) then physics:SetMass(0.4) physics:Wake() end
     self.BurstAt = CurTime() + (self.FuseTime or 2)
     self.NextBounce = 0
+    -- Fuse is wall-clock based, independent of physics sleep or contact.
+    -- Think retains its deadline check; Burst prevents duplicate detonation.
+    timer.Simple(self.FuseTime or 2, function()
+        if IsValid(self) and not self.Burst then self:Detonate() end
+    end)
 end
 function ENT:PhysicsCollide(data)
     if data.Speed > 60 and CurTime() >= self.NextBounce then
@@ -38,29 +44,45 @@ function ENT:PhysicsCollide(data)
 end
 function ENT:CreateFirePatches()
     local origin = self:GetPos()
-    local points = {}
-    -- An 80-unit grid overlaps the 120-unit patches throughout the entire disk.
+    local points, delays = {}, {}
+    self.FireStarted = CurTime()
+    self:SetNW2Float("FireStarted", self.FireStarted)
+    local function PlacementFilter(entity)
+        return entity ~= self and not (entity:IsPlayer() or entity:IsNPC() or entity:IsNextBot())
+    end
+    -- Keep overlapping coverage, but jitter the grid and ignite outward over time.
     -- Ground and visibility checks prevent fire spreading through walls or water.
     local spacing = 80
     local steps = math.floor(self.FireReach / spacing)
     for x = -steps, steps do
         for y = -steps, steps do
             local offset = Vector(x * spacing, y * spacing, 0)
+            if x ~= 0 or y ~= 0 then
+                offset = offset + Vector(math.Rand(-14, 14), math.Rand(-14, 14), 0)
+            end
             if offset:LengthSqr() <= self.FireReach ^ 2 then
                 local ground = util.TraceLine({start = origin + offset + UP * 24,
-                    endpos = origin + offset - UP * 160, filter = self, mask = MASK_SOLID})
+                    endpos = origin + offset - UP * 160, filter = PlacementFilter, mask = MASK_SOLID})
                 local pos = ground.HitPos + UP * 3
                 if ground.Hit and not ground.HitSky and ground.HitNormal.z > 0.5 and not InWater(pos) then
                     local line = util.TraceLine({start = origin + UP * 8, endpos = pos + UP * 8,
-                        filter = self, mask = MASK_SOLID})
-                    if not line.Hit then points[#points + 1] = pos end
+                        filter = PlacementFilter, mask = MASK_SOLID})
+                    if not line.Hit then
+                        points[#points + 1] = pos
+                        -- Center lights immediately; outer patches follow over ~2 seconds.
+                        delays[#points] = (x == 0 and y == 0) and 0
+                            or offset:Length() / self.FireReach * 2 + math.Rand(0, 0.3)
+                    end
                 end
             end
         end
     end
-    self.FirePoints = points
+    self.FirePoints, self.FirePointDelays = points, delays
+    for index, pos in ipairs(points) do
+        self:SetNW2Vector("FirePoint" .. index, pos)
+        self:SetNW2Float("FirePointDelay" .. index, delays[index])
+    end
     self:SetNW2Int("FirePointCount", #points)
-    for index, pos in ipairs(points) do self:SetNW2Vector("FirePoint" .. index, pos) end
     return #points > 0
 end
 local function SmokeRound(self, prefix)
@@ -115,7 +137,8 @@ function ENT:Detonate()
             effect:SetSurfaceProp(self.SmokeDuration)
             util.Effect("acf_infantry_safe_smoke", effect, true, true)
         end
-        self:EmitSound("ambient/gas/steam2.wav", 65, 100, 0.6)
+        -- Use the finite CSS grenade burst, never an unmanaged ambient loop.
+        self:EmitSound("weapons/smokegrenade/sg_explode.wav", 65, 100, 0.6)
         self:Remove()
         return
     end
@@ -133,7 +156,8 @@ function ENT:Detonate()
         self.GasUntil = CurTime() + self.GasDuration
         self.NextGas = CurTime()
         self:CreateGasSmoke()
-        self:EmitSound("ambient/gas/steam2.wav", 65, 100, 0.6)
+        -- Use the finite CSS grenade burst, never an unmanaged ambient loop.
+        self:EmitSound("weapons/smokegrenade/sg_explode.wav", 65, 100, 0.6)
         return
     end
     -- Unknown grenade kinds must never fall through into fire behavior.
@@ -156,8 +180,8 @@ function ENT:BurnTick(dt)
     for _, target in ipairs(ents.FindInSphere(self:GetPos(), self.FireReach)) do
         if target ~= self and IsValid(target) and target:WaterLevel() < 2 then
             local origin, hit
-            for _, point in ipairs(self.FirePoints) do
-                if not InWater(point) then
+            for index, point in ipairs(self.FirePoints) do
+                if CurTime() >= self.FireStarted + self.FirePointDelays[index] and not InWater(point) then
                     local nearest = target:NearestPoint(point + UP * 8)
                     if nearest:DistToSqr(point) <= self.FireRadius ^ 2
                         and nearest:DistToSqr(self:GetPos()) <= self.FireReach ^ 2 then
@@ -231,5 +255,7 @@ function ENT:Think()
     return true
 end
 function ENT:OnRemove()
-    if self.FireSound then self.FireSound:Stop() end
+    if self.FireSound then self.FireSound:Stop() self.FireSound = nil end
+    self:StopSound("ambient/fire/fire_small_loop1.wav")
+    self:StopSound("ambient/gas/steam2.wav")
 end

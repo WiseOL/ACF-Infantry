@@ -1,0 +1,22 @@
+-- Presentation assets from the user-supplied [TFA] HL:A Gear archive. No TFA runtime code.
+if SERVER then
+    AddCSLuaFile()
+    resource.AddFile("materials/vgui/acf_sweps/health_stim_alyx.png")
+    resource.AddFile("materials/entities/tfa_healthshot.png")
+    resource.AddFile("materials/models/weapons/c_medishot/c_medishot_d.vtf")
+    resource.AddFile("materials/models/weapons/c_medishot/c_medishot_n.vtf")
+    resource.AddFile("materials/models/weapons/c_medishot/glowystuff_d.vtf")
+    resource.AddFile("materials/models/weapons/c_medishot/health_liquid.vmt")
+    resource.AddFile("materials/models/weapons/c_medishot/health_pen.vmt")
+    resource.AddFile("models/weapons/c_medishot.dx80.vtx")
+    resource.AddFile("models/weapons/c_medishot.dx90.vtx")
+    resource.AddFile("models/weapons/c_medishot.mdl")
+    resource.AddFile("models/weapons/c_medishot.sw.vtx")
+    resource.AddFile("models/weapons/c_medishot.vvd")
+    resource.AddFile("models/weapons/w_medishot.dx80.vtx")
+    resource.AddFile("models/weapons/w_medishot.dx90.vtx")
+    resource.AddFile("models/weapons/w_medishot.mdl")
+    resource.AddFile("models/weapons/w_medishot.phy")
+    resource.AddFile("models/weapons/w_medishot.sw.vtx")
+    resource.AddFile("models/weapons/w_medishot.vvd")
+end

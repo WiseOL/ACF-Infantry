@@ -4,17 +4,17 @@ include("weapon_acf_base.lua")
 
 
 SWEP.Base                   = "weapon_acf_base"
-SWEP.PrintName = "ACF TOW Launcher"
+SWEP.PrintName = "ACF Javelin"
 
 SWEP.IconOffset				= Vector(-2, -8, 0)
 SWEP.IconAngOffset			= Angle()
 
-SWEP.UseHands               = false
-SWEP.ViewModel              = "models/weapons/panzerschreck/v_panzerschreck.mdl"
-SWEP.ViewModelFOV			= 45
+SWEP.UseHands               = false -- Donor viewmodel includes its own arms.
+SWEP.ViewModel              = "models/krazy/cod4rm/javelin_v.mdl"
+SWEP.ViewModelFOV			= 50
 
-SWEP.ShotSound				= Sound("Weapon_Panzerschreck.Shoot")
-SWEP.WorldModel             = "models/weapons/panzerschreck/w_pschreck.mdl"
+SWEP.ShotSound				= Sound("rm_javelin/motor_fire.wav")
+SWEP.WorldModel             = "models/krazy/cod4rm/javelin_w.mdl"
 SWEP.HoldType               = "rpg"
 
 SWEP.Slot                   = 4
@@ -55,13 +55,13 @@ SWEP.SprintAng				= Angle(-5, -10, 0) -- The angle the viewmodel turns to when t
 SWEP.AimFocused				= 0.0
 SWEP.AimUnfocused			= 5
 
-SWEP.CustomAnim				= true
+SWEP.CustomAnim				= false
 SWEP.AimAnim				= ACT_VM_DEPLOY
 SWEP.IdleAnim				= ACT_VM_UNDEPLOY
 
 SWEP.CustomWorldModelPos	= true -- An attempt at fixing the broken worldmodel position
-SWEP.OffsetWorldModelPos	= Vector(0, 0, 1)
-SWEP.OffsetWorldModelAng	= Angle(10, 0, 180)
+SWEP.OffsetWorldModelPos	= Vector(0, 1, -1.5)
+SWEP.OffsetWorldModelAng	= Angle(-2, -1, 178)
 
 SWEP.FakeFire				= true	-- This shakes the aim bloom so you can't just quickshot to victory
 SWEP.MoveBloom				= 2
@@ -79,4 +79,12 @@ SWEP.InfantryStandoffRatio = 0.00
 SWEP.InfantryGuidance = "ACF.Missiles.Guidance.WireSACLOS"
 include("acf_sweps/launcher_rounds.lua").ApplyMissile(SWEP)
 
+SWEP.IconOverride = "vgui/entities/cod4rm_fgm148javelin"
+SWEP.ACFMenuImage = "vgui/entities/cod4rm_fgm148javelin"
+SWEP.ACFMenuImageScale = 0.75 -- Centered, with margins like the other launcher previews.
+SWEP.ACFMenuImageRotation = 65 -- Turn the donor diagonal preview into a flatter side pose.
 SWEP.SubCategory = "Launchers"
+include("acf_sweps/javelin_presentation.lua").Apply(SWEP)
+
+-- Grounded firing only; SMAW and other equipment are unaffected.
+include("acf_sweps/grounded_launcher.lua").Apply(SWEP)

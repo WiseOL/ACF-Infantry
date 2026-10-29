@@ -6,8 +6,8 @@ SWEP.Base = "weapon_base"
 SWEP.PrintName = "ACF Suit Armor"
 SWEP.Author = "ACF server customization"
 SWEP.Category = "ACF Infantry"
-SWEP.Instructions = "Left click: Add 25 suit armor, up to 200. Eight successful uses per item."
-SWEP.Purpose = "Adds 25 suit armor per use, capped at 200."
+SWEP.Instructions = "Left click: Add 25 suit armor, up to 150. Eight successful uses per item."
+SWEP.Purpose = "Adds 25 suit armor per use, capped at 150."
 SWEP.Spawnable = true
 SWEP.AdminOnly = false
 SWEP.UseHands = false
@@ -32,7 +32,7 @@ SWEP.DisableDuplicator = true
 
 -- The pack's spawn-menu tooltip invokes this for every weapon in its category.
 function SWEP:BuildWepSelectionText()
-    self.DisplayText = { "Armor: +25 per use (max 200)", "Eight uses per item" }
+    self.DisplayText = { "Armor: +25 per use (max 150)", "Eight uses per item" }
     self.ControlText = { "Left click: Apply armor" }
 end
 
@@ -48,7 +48,7 @@ function SWEP:PrimaryAttack()
     if not IsValid(owner) or not owner:IsPlayer() or not owner:Alive() then return end
     local usesLeft = self:GetNWInt("ArmorUsesLeft", 8)
     if usesLeft <= 0 then return end
-    if owner:Armor() >= 200 then
+    if owner:Armor() >= 150 then
 
         return
     end
@@ -56,7 +56,7 @@ function SWEP:PrimaryAttack()
     owner:SetAnimation(PLAYER_ATTACK1)
     usesLeft = usesLeft - 1
     self:SetNWInt("ArmorUsesLeft", usesLeft)
-    owner:SetArmor(math.min(owner:Armor() + 25, 200))
+    owner:SetArmor(math.min(owner:Armor() + 25, 150))
     owner:EmitSound("acf_infantry/armor_plate_use.wav")
 
     if usesLeft == 0 then

@@ -1,19 +1,92 @@
 # ACF Infantry
 
+<img width="256" height="256" alt="Acfinfantrysmall" src="https://github.com/user-attachments/assets/a35298e0-8669-470d-886c-590ca4325134" />
+
 **ACF Infantry is a Garry's Mod infantry weapon and equipment pack built around ACF ballistics.** It brings small arms, guided missile launchers, throwable area effects, and support equipment into the same combat environment as ACF vehicles and props.
 
-This customized version is based on [ACF-3-SWEPs](https://github.com/ACF-Team/ACF-3-SWEPs) and targets the [ACF-3 VSS fork](https://github.com/PERSON00331/ACF-3-VSS-FORK). It includes **29 spawnable items**: 16 firearms, 5 launchers, 4 grenades, and 4 utility items.
+This customized version is based on [ACF-3-SWEPs](https://github.com/ACF-Team/ACF-3-SWEPs) and targets the [ACF-3 VSS fork](https://github.com/PERSON00331/ACF-3-VSS-FORK). It includes **31 spawnable items**: 16 firearms, 5 launchers, 4 throwable grenades, 2 deployable explosives, and 4 utility items.
+
+## Recent Changes
+
+### Gradual, randomized grenade fire — October 28, 2026
+
+Fire now ignites near the grenade first and spreads outward over approximately 2–2.3 seconds on suitable ground. Patch centers have small random offsets while retaining overlapping coverage; each patch starts dealing damage only once it ignites. Flame timing, size, lifetime, color and motion vary independently between patches. The 15-second duration still starts at detonation, with unchanged 120-unit patch radius, 250-unit maximum reach, character damage, and wall/water checks. Overlapping patches still do not stack damage.
+
+### Health Stim Q-menu image — October 28, 2026
+
+The Health Stim now uses the selected transparent syringe image, with its lime chamber, red cross and slight tilt. The preview preserves the image's proportions and is centered at 75% image scale for consistent menu margins. Only its Q-menu image changes; the Alyx models, injection animations, healing, protection and controls are unchanged.
+
+### Thrown C4 model fix — October 28, 2026
+
+Thrown and planted C4 now uses the donor's separate charge model, `models/krazy/cod4rm/misc/c4.mdl`, with its physics and mesh companion files bundled. The equipped weapon keeps its existing detonator presentation. Throwing, sticking, arming, remote controls and ACF damage settings are unchanged.
+
+### Automatic XM25 — October 28, 2026
+
+The XM25 now fires automatically while the trigger is held. Its existing 0.3-second shot interval (200 rounds/minute), 12-round magazine, reserve ammunition, accuracy, recoil, and 25 mm HE projectile settings are unchanged.
+
+### C4 and claymore Q-menu previews — October 28, 2026
+
+The C4 and claymore thumbnails now use centered previews at 65% of the tile's available image area, giving them margins consistent with the other items. Their existing upright orientation is preserved. This affects only the Q-menu images; their models, animations, controls and explosive settings are unchanged.
+
+### Javelin Q-menu preview — October 28, 2026
+
+The Javelin menu preview is rotated into a flatter side pose and fitted at 75% of the available rotated-image bounds, keeping it centered with consistent margins. This changes only its Q-menu thumbnail; other icons retain their existing layout. Equipped models, animations, HUD, and weapon settings are unchanged.
+
+### Javelin scope-entry visibility — October 28, 2026
+
+The Javelin model and built-in arms are hidden from the start of aiming, covering the 0.75-second scope-entry transition as well as the final scoped view. This prevents the animated scope housing from filling the camera before the overlay appears. The world view remains visible during the transition, and the ammo/status panel continues drawing. Scope delay, zoom, reload timing, guidance and damage settings are unchanged.
+
+### Javelin reload presentation — October 28, 2026
+
+The Javelin viewmodel and its built-in arms are hidden for the reload interval, preventing the glitched reload animation from appearing on screen. The ammo/status HUD stays visible. Reload duration remains four seconds; the model is shown again when reloading finishes unless the scope view is active. No global viewmodel visibility settings or other weapons are changed.
+
+### Javelin HUD fix — October 28, 2026
+
+The Javelin now calls the pack's ammo/status HUD directly in both aimed and unaimed views. The panel draws after its scope graphics, so the overlay does not cover it. This fixes an integration bug where the normal gun HUD hook was skipped and the custom Javelin view never drew the replacement panel. No weapon or utility balance settings changed.
+
+### Alyx syringe presentation — October 28, 2026
+
+- The health stim now uses the bundled **HL:A Gear Medishot** viewmodel (`models/weapons/c_medishot.mdl`) and world model (`models/weapons/w_medishot.mdl`), with normal player hands and the supplied `draw`, `idle`, and `inject` sequences. The former floating health-vial prop and lift animation are removed.
+- Named animation playback uses the pack's existing owner-client animation helper, without requiring TFA or a separate HL:A Gear installation. The donor only has one injection sequence, so both self-use and healing another target reuse it, fitted to the existing action delays.
+- Healing remains **50 HP over 10 seconds**, capped at 100 (or the target's lower max health), with **15% damage reduction for 20 seconds**. Charges, repeat-use timer refreshes, other-target range checks, and the HUD remain unchanged. The original stock health-kit use sound is retained; the archive did not contain the donor Lua's referenced `items/medshot4.wav`.
+
+
+The Q-menu folder previously named **Grenades** is now **Throwables and Deployables**, containing the four throwable grenades, C4, and claymore.
+
+### Javelin presentation and deployable explosives — October 28, 2026
+
+- The former Panzerschreck/TOW entry is now **ACF Javelin**, with the supplied CoD Remastered Javelin model, named draw/fire/reload/aim sequences, 30-degree aiming FOV, and CLU scope graphics. Its ACF **BGM-71E HEAT payload and Wire SACLOS guidance remain unchanged**: this is a presentation replacement, not a new fire-and-forget/top-attack missile. Continue holding aim after launch to guide it.
+- Added **ACF C4** and **ACF Claymore** under the existing **Throwables and Deployables** folder, with bundled models, materials, sounds, named animations, and native VSS ACF blast/fragmentation damage. No TFA base is required. See [Deployable Explosives](#deployable-explosives) for controls and balance settings.
+- Existing launcher ammunition, reload/arming times, movement penalties, grounded-firing restrictions, safety, and the ACF HUD are preserved. The replacement keeps `weapon_acf_panzerschreck` for compatibility.
+
+### Earlier balance and grenade updates
+
+Compared with [WiseOL/ACF-Infantry](https://github.com/WiseOL/ACF-Infantry) at commit [`c42d059`](https://github.com/WiseOL/ACF-Infantry/commit/c42d059f2967145f18b708c3bc036db9d85b24bb), checked October 26, 2026. This comparison describes the downloadable pack; it does not mean these changes have been pushed to GitHub.
+
+| Area | GitHub baseline | Updated pack |
+| --- | --- | --- |
+| Bazooka, Javelin (formerly TOW), Stinger | No dedicated grounded-firing guard | Firing is blocked while airborne or pressing jump. SMAW and XM25 remain exempt. |
+| SMAW ammunition | 60 mm APCR; 9 cm projectile; 39 cm propellant | 40 mm APCR; 6 cm projectile; 26 cm propellant, using the maximum propellant and minimum projectile lengths permitted for this cannon caliber. |
+| SMAW movement | No heavy-weapon movement reduction | Walking, slow-walking, and sprinting are reduced by 15% while equipped, using the existing heavy-weapon movement handler. M1919 and M249 retain their existing penalties. |
+| Suit Armor | 200 armor cap | 150 armor cap, including the HUD capacity. Still +25 per successful use and eight charges per item; six uses reach the cap from zero. |
+| Shotgun pellet pattern | 1.25-degree pellet cone half-angle | 0.9375-degree pellet cone half-angle: 25% tighter. Still 24 pellets, with unchanged shot-center accuracy, handling, recoil, speed, and per-pellet damage settings. |
+| Smoke, nerve gas, Venomous Agent X audio | Unmanaged ambient steam loop | Finite CS:S smoke-grenade burst replaces the loop. Fire sound cleanup is also performed client-side on removal and expiry, in addition to server-side cleanup. |
+| Grenade player contact and fuse | Player collision; fuse checked in entity Think | Player–grenade physical collision is disabled. An independent server fuse timer backs up Think, with duplicate-detonation protection. Fire-placement traces ignore characters while retaining wall, ground, and prop checks. |
+
+The newer Stinger model/seeker, health-vial stim, and their existing UI are already present in the comparison commit; they are not new differences in this update. Beyond the additions and changes listed above, other weapon definitions and utilities, missile payloads, and throwable-grenade damage/radius/duration/fuse settings remain unchanged. The XM25 Lua file has only an extra trailing blank line; the armor material differs only in line endings.
+
+File/package checks and targeted Lua checks were completed during these updates. The grenade sound and standing-over-grenade fixes still need confirmation in Garry's Mod.
 
 ## Features
 
 - ACF projectile interaction with vehicles, armor, and props.
 - Rifles, pistols, machine guns, a shotgun, and a rebar crossbow.
 - Wire-guided anti-tank missiles and an infrared anti-aircraft launcher.
-- Smoke, fire, nerve gas, and Venomous Agent X grenades.
+- Smoke, fire, nerve gas, and Venomous Agent X grenades, plus remote C4 and directional claymores.
 - Suit armor, healing equipment, EPO, and persistent thermal goggles.
 - A compact vertical HUD anchored to the bottom-right corner.
 - Weapon safety toggles, magazine/reserve displays, and launcher status information.
-- Organized **Weapons**, **Launchers**, **Grenades**, and **Utility** folders beneath **ACF Infantry** in the Q menu's Weapons tab.
+- Organized **Weapons**, **Launchers**, **Throwables and Deployables**, and **Utility** folders beneath **ACF Infantry** in the Q menu's Weapons tab.
 
 ## Requirements
 
@@ -25,7 +98,7 @@ This customized version is based on [ACF-3-SWEPs](https://github.com/ACF-Team/AC
 | [Wiremod](https://github.com/wiremod/wire) with FLIR support | Thermal goggles and camera-controller thermal integration |
 | Bundled FIM-92 Stinger assets, credited below | Dedicated Stinger view/world models, materials, deploy sound, and seeker tone |
 
-The health stim temporarily uses the stock HL2 health-vial prop (`models/healthvial.mdl`). It needs no Rust syringe addon. The previous Rust syringe models, materials, and sounds have been removed. The separate experimental Medical Shot compile kit is not part of this release.
+The health stim uses bundled Medishot models and textures from the user-supplied **[TFA] HL:A Gear** archive. Its animation playback uses native Garry's Mod calls, so it needs neither TFA nor the separate donor addon installed. The previous Rust syringe assets and separate experimental Medical Shot compile kit are not part of this release.
 
 Wiremod's FLIR support is required for thermal vision. The remainder of the pack still requires ACF. Compatibility with other ACF forks or older APIs should be checked rather than assumed.
 
@@ -51,13 +124,13 @@ Do not leave the addon as an unextracted ZIP. Avoid an extra nested directory su
 | Firearms and launchers | **R** | Reload |
 | Firearms and launchers | **B** | Toggle safety |
 | Guided missile launchers | Hold right click, then left click | Aim and launch; Stinger requires a two-second target lock |
-| AT-3 / TOW | Continue holding aim with the launcher equipped | Guide the missile toward the current aiming point |
+| Bazooka / Javelin | Continue holding aim with the launcher equipped | Guide the missile toward the current aiming point |
 | Grenades | Hold left click, then release | Pull the pin and throw |
 | Grenades | Right click | Pull the pin and automatically drop just ahead of your feet |
 | Grenades | **R** | Ready another grenade from reserve |
 | Suit armor | Left click | Apply 25 armor |
-| Health stim | Left click | Apply the health vial to yourself |
-| Health stim | Right click | Apply the health vial to a nearby living player or NPC; keep aiming until application finishes |
+| Health stim | Left click | Inject yourself |
+| Health stim | Right click | Apply the stim to a nearby living player or NPC; keep aiming until application finishes |
 | EPO | Left click | Use EPO |
 | Thermal goggles | Left click while equipped, or **N** while carried | Toggle thermal vision |
 
@@ -86,14 +159,15 @@ These are **configured ACF calibers and round types**, not a claim that every we
 | ACF SG550 Commando | 5.56 mm | AP | 30 |
 | ACF Shotgun | 2.5 mm projectile setting | AP | 7 |
 
-The shotgun's listed caliber is its configured projectile value, not its nominal shell gauge.
+The shotgun's listed caliber is its configured projectile value, not its nominal shell gauge. Each shot fires 24 pellets. The pellet cone half-angle is 0.9375 degrees (25% narrower than the previous 1.25 degrees). Shot-center accuracy, handling, recoil, pellet count, projectile speed, and per-pellet damage settings are unchanged; it remains buckshot rather than a single slug.
 
 ### Ammunition and handling
 
 - Guns and launchers are configured to start loaded, with **100 rounds in reserve**. Weapons sharing a Garry's Mod ammo pool also share that reserve; existing inventory and ammo grants can affect the displayed total.
 - The pack's balance adjustments reduce base spread and handling inaccuracy, improve aimed accuracy, and reduce recoil compared with the original configuration.
-- The **M1919 and M249 reduce walking, slow-walking, and sprint movement by 15% while equipped**.
-- The SMAW can fire without aiming down sights.
+- The **M1919, M249, and SMAW reduce walking, slow-walking, and sprint movement by 15% while equipped**.
+- The Bazooka, Javelin, and Stinger can fire only while grounded. Jump + fire inputs are blocked, as is firing while falling or otherwise airborne.
+- The SMAW and XM25 are exempt from the grounded-firing restriction; the SMAW can fire without aiming down sights.
 - Select-fire behavior depends on each weapon's configuration; not every firearm has multiple firing modes.
 
 ### Custom APCR ammunition
@@ -104,16 +178,16 @@ These weapons use native ACF ammunition conversion rather than a manually assign
 | --- | --- | --- | --- | --- |
 | Anti-Material Rifle | Autocannon | 27 mm | 4.05 cm | 17.55 cm |
 | Rebar Crossbow | Cannon | 23 mm | 3.45 cm | 14.95 cm |
-| SMAW | Cannon | 60 mm | 9.00 cm | 39.00 cm |
+| SMAW | Cannon | 40 mm | 6.00 cm | 26.00 cm |
 
 ## Launchers
 
 | Weapon | Projectile | Guidance | Loaded capacity | Reload |
 | --- | --- | --- | --- | --- |
 | ACF Bazooka | AT-3 HEAT missile | Wire / SACLOS | 1 | 4 seconds |
-| ACF TOW Launcher | BGM-71E HEAT missile | Wire / SACLOS | 1 | 4 seconds |
+| ACF Javelin | BGM-71E HEAT missile | Wire / SACLOS | 1 | 4 seconds |
 | ACF Stinger | FIM-92 HE missile | Infrared | 1 | 2 seconds |
-| ACF SMAW | 60 mm APCR cannon round | Unguided ballistic projectile | 1 | Weapon-base reload behavior |
+| ACF SMAW | 40 mm APCR cannon round | Unguided ballistic projectile | 1 | Weapon-base reload behavior |
 | ACF XM25 | 25 mm HE projectile | Unguided ballistic projectile | 12 | Weapon-base reload behavior |
 
 The SMAW is configured as a cannon-round launcher. It does not fire a guided missile.
@@ -125,17 +199,21 @@ Projectile and propellant lengths below are ammunition-conversion inputs in cent
 | Launcher | Projectile length | Propellant length | HEAT liner angle | Extra standoff ratio | Filler ratio |
 | --- | --- | --- | --- | --- | --- |
 | Bazooka / AT-3 | 16.00 cm | 26.00 cm | 90° | 0.00 | Native HEAT conversion |
-| TOW / BGM-71E | 20.00 cm | 18.00 cm | 90° | 0.00 | Native HEAT conversion |
+| Javelin / BGM-71E | 20.00 cm | 18.00 cm | 90° | 0.00 | Native HEAT conversion |
 | Stinger / FIM-92 | 60.00 cm | 80.00 cm | Not applicable | Not applicable | 0.48 |
 
 - **Bazooka:** three-second arming period after equipping. Sprinting is blocked during arming, walking is reduced by 25%, and sprint speed is reduced by 30% once armed.
-- **TOW:** three-second arming period after equipping. Sprinting is blocked during arming, walking is reduced by 50%, and sprint speed is reduced by 50% once armed.
+- **Javelin (TOW payload):** three-second arming period after equipping. Sprinting is blocked during arming, walking is reduced by 50%, and sprint speed is reduced by 50% once armed.
 - **Stinger:** no additional equip-arming period or launcher movement penalty. The native missile fuze still has its own arming behavior. Infrared guidance operates autonomously after launch, with a radio proximity fuze configured for approximately 3 meters. The dedicated FIM-92 model uses upstream sight/idle offsets, eased aiming, reduced aimed sway, and its own sprint pose. It requires a two-second lock while aiming at an eligible ACF target; a seeker tone and blue/red target marker show acquisition and lock. Losing sight, lowering the weapon, reloading, enabling safety, or changing targets clears/restarts acquisition. The locked target is passed to native infrared guidance after launch. There is no added movement penalty.
 - Wire-guided missiles follow the player's current aiming point while the owner is alive, holding aim, and keeping that launcher active. Native wire range and wire-break behavior still apply.
 
-For compatibility with existing saves or bindings, the TOW retains the entity class `weapon_acf_panzerschreck`. The SMAW retains `weapon_acf3r_smaw`, and the XM25 retains `weapon_acf_grenadelauncher`.
+For compatibility with existing saves or bindings, the Javelin replacement retains the legacy entity class `weapon_acf_panzerschreck`. The SMAW retains `weapon_acf3r_smaw`, and the XM25 retains `weapon_acf_grenadelauncher`.
 
-## Grenades
+The Javelin model and CLU view replace the previous TOW presentation only. Its native missile remains BGM-71E HEAT with the listed 20/18 cm payload settings; the scope deliberately displays Wire SACLOS rather than a simulated lock or top-attack mode. Named sequence playback is implemented independently of TFA.
+
+## Throwables and Deployables
+
+### Grenades
 
 All grenade types have separate ammunition pools and start with **one ready grenade plus 100 in reserve**. The shared limit permits up to six active grenade/cloud/fire entities per player. Right-click dropping uses the same ammunition and fuse as throwing.
 
@@ -165,7 +243,7 @@ Its private client effect uses ACF smoke materials and dispersion, with both clo
 
 ### Fire
 
-Fire uses overlapping **120-unit patches** to cover a continuous area on unobstructed ground, with a hard outer reach of **250 units**. Walls, unsuitable terrain, and water can interrupt that coverage. Overlapping patches from the same grenade do not multiply damage to one target.
+Fire spreads outward over approximately **2–2.3 seconds**, using overlapping **120-unit patches** with small randomized position offsets to cover a continuous area on unobstructed ground, with a hard outer reach of **250 units**. Walls, unsuitable terrain, and water can interrupt that coverage. Overlapping patches from the same grenade do not multiply damage to one target.
 
 Players, NPCs, and NextBots use the configured character damage rate. ACF props receive separate low-penetration thermal damage through ACF's armor calculations; they do not simply lose 15 ACF HP per second.
 
@@ -180,12 +258,28 @@ Both clouds damage characters through suit armor while retaining normal damage h
 
 The native VSS field is named `SmokeWPRatio`; its value is passed directly to ACF conversion. These visual payload settings do not change the explicitly configured gas damage radius or duration, and the gas visuals do not spawn native WP damage clouds.
 
+## Deployable Explosives
+
+Both items appear in **ACF Infantry → Throwables and Deployables**, use separate ammo pools, and start with **one ready device plus 100 reserve**. The HUD shows ready/reserve ammo, deployed count, and controls. Each player may have **four active C4 charges and four active claymores**. Their runtime code does not use the donor's flat `util.BlastDamage` or require TFA.
+
+| Item | Primary | Secondary | Arming | Native ACF payload |
+| --- | --- | --- | --- | --- |
+| ACF C4 | Throw a short-range sticky charge | Detonate your armed C4 charges | 1 second | 0.5 kg TNT-equivalent filler; 0.1 kg casing/fragment mass |
+| ACF Claymore | Plant on clear, reasonably level ground ahead, facing away from you | No secondary action | 1.5 seconds | 0.05 kg TNT-equivalent local blast; 0.02 kg casing, plus 48 forward AP fragments |
+
+- **C4:** thrown at 400 units/s forward plus 80 units/s upward and player velocity. It sticks to world/prop surfaces after contact. Detonation uses the current owner's C4 only; unarmed charges are skipped. Detonator animation is cosmetic and does not add a separate blast delay.
+- **Claymore:** detects other living players, NPCs, NextBots, and moving vehicles/ACF entities within **180 units** and an **80-degree forward cone**, with a line-of-sight check. It ignores its placing player; there is no team filter. Triggering starts a **0.25-second delay**. Its AP fragments use native ACF flight and armor penetration at **1,000 m/s**, with a **60-degree horizontal / 20-degree vertical** forward spread. The small blast is omnidirectional; the additional AP fragments are directional. Lasers indicate the forward sector but are cosmetic, not exact tripwire collision beams.
+- Press **E** on your own device within **96 units** to recover one reserve round, provided that ammo pool is below 100 and the device has not triggered. Press **R** to ready another device; a new device is also readied automatically after placement when ammunition is available.
+- Devices have 10 engine health; shooting them out before arming removes them, while destroying an armed device requests detonation. Native ACF prop damage can also destroy devices through its own handling.
+- Devices disappear after **180 seconds**, on owner death/spawn/disconnect, or via the player's **ACF Infantry Explosives** cleanup entry. Pending callbacks validate the entity before acting.
+- Blast radius, damage, fragmentation penetration, armor response, and damage permissions depend on the installed VSS ACF code and server hooks. These are game balance inputs, not fixed damage numbers. There is no duplicate generic blast-damage pass.
+
 ## Utility equipment
 
 ### ACF Suit Armor
 
-- Adds **25 suit armor per successful use**, up to **200 armor**.
-- Eight successful applications per item allow a player starting at zero to reach 200 armor.
+- Adds **25 suit armor per successful use**, up to **150 armor**.
+- Six successful applications reach 150 armor from zero. Each item retains eight uses; remaining uses can replenish armor after taking damage.
 - Using it at the cap does not spend a charge.
 - Displays an upright armor item without first-person hands or arms, with the plate facing the player and offset from the crosshair.
 - The plate rests closer to the player and moves upward and toward the face during a successful application, then returns to its resting position.
@@ -200,8 +294,8 @@ The native VSS field is named `SmokeWPRatio`; its value is passed directly to AC
 - Healing another target requires maintaining aim/contact until the application delay finishes. Breaking contact cancels without consuming the stim.
 - Each pickup supplies one medical charge. Additional pickups add charges to the same ammunition pool (up to 100). Each successful application consumes one charge; another use can begin once the application delay finishes.
 - Reusing a stim on an affected target restarts healing at 50 HP over the next 10 seconds and refreshes 15% damage reduction to 20 seconds. Old healing is replaced, not added, and damage reduction does not stack. The 100 HP cap remains.
-- Temporary presentation uses `models/healthvial.mdl` for the equipped and world model, with no first-person hands/arms and a 0.85-second lift toward the face and back, similar to Suit Armor. It uses the stock health-kit sound, not syringe sounds.
-- Application timing remains 3.6 seconds for self-use and 2.84 seconds for another target. The short visual lift does not change these fixed use delays; the health-vial prop does not contain syringe injection animations. Self-healing begins on accepted use; healing another target begins when the contact/application delay completes.
+- Presentation uses `models/weapons/c_medishot.mdl` and `models/weapons/w_medishot.mdl` with player hands. Named `draw`, `idle`, and `inject` animations replace the floating-prop renderer. It retains the stock health-kit use sound.
+- Application timing remains 3.6 seconds for self-use and 2.84 seconds for another target. The same supplied injection sequence plays over 3.4 or 2.64 seconds respectively, with a 0.2-second completion buffer. There is no separate outstretched-arm animation in the donor model. Self-healing begins on accepted use; healing another target begins when the contact/application delay completes.
 - Uses no activation chat messages. Player effects are cleared on death, spawn, or disconnect.
 
 ### ACF Erythropoietin (EPO)
@@ -265,7 +359,7 @@ acf_infantry_missile_diagnostics
 
 The trace lasts approximately 120 seconds and reports native conversion, launch, guidance, detonation, and HE damage information to the console. It does not change damage results.
 
-The temporary health-vial prop has no injection sequences. The existing `acf_infantry_stim_diagnostics` command can still report its model and use timing, but missing `inject`/`inject_other` sequences are expected for this placeholder.
+The `acf_infantry_stim_diagnostics` command reports the equipped model and use timing. The Alyx viewmodel has `draw`, `idle`, and `inject`; it does not have sequences named `deploy` or `inject_other`. The stim maps its internal deploy/other-use actions to the supplied names explicitly. Missing names in the diagnostic output do not alone indicate a playback failure.
 
 The safety toggle is also available as a client console command:
 
@@ -296,6 +390,22 @@ When reporting a bug, include the weapon/item name, server ACF version or commit
 - **FrazierWing** — [SideWinderGrowl.wav](https://freesound.org/people/FrazierWing/sounds/569666/), CC0, used for the Stinger seeker tone.
 - Stinger presentation and seeker logic adapted from upstream ACF-3-SWEPs commit [`b52ea0c854c837d2d241c8ef0e1113e106f4f2eb`](https://github.com/ACF-Team/ACF-3-SWEPs/commit/b52ea0c854c837d2d241c8ef0e1113e106f4f2eb); the pack retains its VSS missile adapter and configured payload, damage path, 2-second reload, 100 reserve rounds, and movement behavior.
 - **Valve** — Source and Counter-Strike: Source game assets used through mounted content.
-- **Armor Plate Replacement** — armor model, materials, and sound from the user-supplied `gmpublisher.gma`; its metadata lists “Author Name” rather than identifying its creator. These assets are third-party content, not covered by the pack's MIT code license.
+- **Armor Plate Replacement** — armor model, materials, and sound from [the Workshop addon](https://steamcommunity.com/sharedfiles/filedetails/?id=2622292371), as credited in the GitHub README. These assets are third-party content, not covered by the pack's MIT code license.
 
 **Code license: MIT**, matching [ACF-3](https://github.com/ACF-Team/ACF-3). The original SWEP code already includes the MIT license in [LICENSE.md](LICENSE.md). Keep that notice and any applicable third-party notices. The code license does not grant ownership of Valve, Workshop, or other third-party assets. Bundled third-party assets retain their original authorship; other game assets are supplied through mounted dependencies. Respect the applicable asset licenses and redistribution terms.
+
+### Grenade audio
+
+Smoke, nerve gas, and Venomous Agent X use the finite CS:S smoke-grenade burst instead of an unmanaged looping steam sound. Fire audio is stopped on removal in both client and server code, with a client expiry check as well. Grenade damage, duration, radius, fuse, and throw settings are unchanged.
+
+### Grenade contact and fuse
+
+Thrown grenades do not physically collide with players, preventing players from standing on or pinning them. World and prop collision rules remain unchanged. A server fuse timer backs up the existing Think deadline and does not depend on movement or physics sleep. Fire-placement traces ignore characters while retaining wall, ground, and prop checks. Grenade fuse lengths and payload settings are unchanged.
+
+### Additional bundled presentation assets
+
+Javelin, C4, and claymore presentation assets were extracted from the user-supplied **[TFA] CoD Remastered Explosives Pack** archive. The donor weapon files credit **Krazy** and identify the Call of Duty: Modern Warfare Remastered source. These game/Workshop assets retain their original authorship and applicable terms; they are not covered by this pack's MIT Lua license. This integration supplies separate ACF runtime code and does not bundle or depend on the donor's TFA weapon bases, missile entities, or generic explosion damage code.
+
+The Medishot model and materials come from the user-supplied **[TFA] HL:A Gear** archive; its healthshot weapon credits **Mazima Gofo**. Half-Life: Alyx game assets retain Valve's authorship and applicable terms. The donor Lua healing code is not included or used, and its TFA base is not a dependency.
+
+The current Health Stim Q-menu image is the user-selected edited syringe illustration, based on the supplied injector image and in-game reference. It replaces the original donor icon in the menu.

@@ -91,12 +91,30 @@ if CLIENT then
             local mat = self.ACFImageMaterial
             local inset = self.Border or 0
             local availableW, availableH = w - inset * 2, h - inset * 2
-            local ratio = mat:Width() / math.max(mat:Height(), 1)
-            local imageW = math.min(availableW, availableH * ratio)
-            local imageH = imageW / ratio
+            local scale = math.Clamp(SWEP.ACFMenuImageScale or 1, 0.1, 1)
+            local rotation = SWEP.ACFMenuImageRotation or 0
+            local imageW, imageH
+            if rotation == 0 then
+                -- Preserve the existing layout for every other menu image.
+                local ratio = mat:Width() / math.max(mat:Height(), 1)
+                imageW = math.min(availableW, availableH * ratio) * scale
+                imageH = imageW / ratio
+            else
+                local radians = math.rad(rotation)
+                local cosine, sine = math.abs(math.cos(radians)), math.abs(math.sin(radians))
+                local nativeW, nativeH = math.max(mat:Width(), 1), math.max(mat:Height(), 1)
+                local rotatedW = nativeW * cosine + nativeH * sine
+                local rotatedH = nativeW * sine + nativeH * cosine
+                local fit = math.min(availableW / rotatedW, availableH / rotatedH) * scale
+                imageW, imageH = nativeW * fit, nativeH * fit
+            end
             surface.SetDrawColor(255, 255, 255, 255)
             surface.SetMaterial(mat)
-            surface.DrawTexturedRect((w-imageW)/2, (h-imageH)/2, imageW, imageH)
+            if rotation == 0 then
+                surface.DrawTexturedRect((w-imageW)/2, (h-imageH)/2, imageW, imageH)
+            else
+                surface.DrawTexturedRectRotated(w/2, h/2, imageW, imageH, rotation)
+            end
         else
 		if not IsValid(self.SpawnIcon) then
 			self.SpawnIcon = self:Add("SpawnIcon")
@@ -196,7 +214,7 @@ if CLIENT then
         local root = Tree.Categories and Tree.Categories[Category]
         if not IsValid(root) then return end
         local groups = {{"Weapons", "icon16/gun.png"}, {"Launchers", "icon16/bomb.png"},
-            {"Grenades", "icon16/weather_clouds.png"}, {"Utility", "icon16/briefcase.png"}}
+            {"Throwables and Deployables", "icon16/weather_clouds.png"}, {"Utility", "icon16/briefcase.png"}}
         for _, group in ipairs(groups) do
             local groupName = group[1]
             local node = root:AddNode(groupName, group[2])

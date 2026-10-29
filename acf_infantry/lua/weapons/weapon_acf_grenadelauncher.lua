@@ -29,7 +29,7 @@ SWEP.RecoilMod              = 0.25
 SWEP.Primary.ClipSize       = 12
 SWEP.Primary.DefaultClip    = 112
 SWEP.Primary.Ammo           = "SMG1_Grenade"
-SWEP.Primary.Automatic      = false
+SWEP.Primary.Automatic      = true
 SWEP.Primary.Delay          = 0.3
 SWEP.CarrySpeedMul			= 1.0
 
@@ -66,3 +66,4 @@ function SWEP:GetAimMod()
 end
 
 SWEP.SubCategory = "Launchers"
+

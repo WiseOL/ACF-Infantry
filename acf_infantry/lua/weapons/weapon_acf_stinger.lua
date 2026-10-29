@@ -59,3 +59,6 @@ include("acf_sweps/launcher_rounds.lua").ApplyMissile(SWEP)
 include("acf_sweps/stinger_seeker.lua").Apply(SWEP)
 
 SWEP.SubCategory = "Launchers"
+
+-- Grounded firing only; SMAW and other equipment are unaffected.
+include("acf_sweps/grounded_launcher.lua").Apply(SWEP)

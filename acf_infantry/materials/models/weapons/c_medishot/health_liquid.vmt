@@ -1,0 +1,7 @@
+"VertexLitGeneric"
+{
+	"$baseTexture" 				"models\weapons\c_medishot\glowystuff_d"
+	"$surfaceprop" "metal"
+	"$selfillum" "1"
+
+}

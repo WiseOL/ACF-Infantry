@@ -1,21 +1,24 @@
 if SERVER then AddCSLuaFile("acf_sweps/hud_theme.lua") end
 if CLIENT and not ACFSwepsTheme then include("acf_sweps/hud_theme.lua") end
 AddCSLuaFile()
+local StimAnimation = include("acf_sweps/named_animation.lua")
 
 SWEP.Base = "weapon_base"
 SWEP.PrintName = "ACF Health Stim"
 SWEP.Author = "ACF server customization"
 SWEP.Category = "ACF Infantry"
-SWEP.Instructions = "Left click: Apply health kit to yourself. Right click: Apply to a nearby player or NPC. +50 HP over 10 seconds (cap 100) and 15% damage reduction for 20 seconds. One charge per injection; repeat use refreshes effects."
+SWEP.Instructions = "Left click: Inject yourself. Right click: Apply to a nearby player or NPC. +50 HP over 10 seconds (cap 100) and 15% damage reduction for 20 seconds. One charge per injection; repeat use refreshes effects."
 SWEP.Purpose = "Heals up to 100 HP and reduces incoming damage by 15% for 20 seconds."
 SWEP.Spawnable = true
 SWEP.AdminOnly = false
-SWEP.UseHands = false
-SWEP.ViewModel = "models/healthvial.mdl"
+SWEP.UseHands = true
+SWEP.ViewModel = "models/weapons/c_medishot.mdl"
 SWEP.ViewModelFOV = 60
-SWEP.WorldModel = "models/healthvial.mdl"
-SWEP.HoldType = "slam"
-SWEP.IconOverride = "entities/item_healthvial.png"
+SWEP.WorldModel = "models/weapons/w_medishot.mdl"
+SWEP.HoldType = "grenade"
+SWEP.IconOverride = "vgui/acf_sweps/health_stim_alyx.png"
+SWEP.ACFMenuImage = "vgui/acf_sweps/health_stim_alyx.png"
+SWEP.ACFMenuImageScale = 0.75 -- Fit the transparent syringe with consistent menu margins.
 SWEP.Slot = 5
 SWEP.SlotPos = 1
 SWEP.DrawAmmo = false
@@ -39,11 +42,14 @@ function SWEP:Initialize()
     self:SetHoldType(self.HoldType)
 end
 
--- Temporary stock health-kit prop. It has no syringe injection sequences.
--- Keep the established application timing independent of model animations.
+-- HL:A Gear supplies draw/idle/inject sequences with no ACT_VM mappings.
+-- Both application actions reuse inject; preserve the established use timing.
 local sequenceTimes = {deploy = 0.6, idle = 2, inject = 3.4, inject_other = 2.64}
 function SWEP:PlayStimSequence(name)
-    return sequenceTimes[name] or 1
+    local duration = sequenceTimes[name] or 1
+    local sequence = ({deploy = "draw", idle = "idle", inject = "inject", inject_other = "inject"})[name] or "idle"
+    if SERVER then StimAnimation.Play(self, sequence, duration) end
+    return duration
 end
 
 function SWEP:Deploy()
@@ -79,7 +85,7 @@ function SWEP:CancelOtherInjection()
 end
 
 function SWEP:Think()
-    if CLIENT then return end
+    if CLIENT then StimAnimation.Idle(self, "idle") return end
     if self.StimTarget then
         local owner = self:GetOwner()
         if not IsValid(owner) or owner:GetActiveWeapon() ~= self
@@ -220,62 +226,4 @@ end
 
 SWEP.SubCategory = "Utility"
 
-if CLIENT then
-    function SWEP:PreDrawViewModel(vm) vm:SetMaterial("engine/occlusionproxy") end
-    function SWEP:PostDrawViewModel(vm) vm:SetMaterial("") end
-    function SWEP:ViewModelDrawn()
-        if not IsValid(self.HealthVialDisplay) then
-            self.HealthVialDisplay = ClientsideModel(self.WorldModel, RENDERGROUP_OPAQUE)
-            if IsValid(self.HealthVialDisplay) then self.HealthVialDisplay:SetNoDraw(true) end
-        end
-        local model = self.HealthVialDisplay
-        if not IsValid(model) then return end
-        local low, high = model:GetModelBounds()
-        local size = high - low
-        local dimensions = {size.x, size.y, size.z}
-        local thin, tall = 1, 1
-        for i = 2, 3 do
-            if dimensions[i] < dimensions[thin] then thin = i end
-            if dimensions[i] > dimensions[tall] then tall = i end
-        end
-        if thin == tall then thin, tall = 1, 3 end
-        local view = EyeAngles()
-        local axes = {}
-        axes[thin], axes[tall] = -view:Forward(), view:Up()
-        if not axes[1] then axes[1] = axes[2]:Cross(axes[3])
-        elseif not axes[2] then axes[2] = axes[3]:Cross(axes[1])
-        else axes[3] = axes[1]:Cross(axes[2]) end
-        local angle = axes[1]:AngleEx(axes[3])
-        local scale = math.min(1, 6 / math.max(dimensions[tall], 0.01))
-        local start = self:GetNWFloat("StimUseStart", -10)
-        -- Match Suit Armor: a brief lift toward the face, then return to rest.
-        -- Presentation timing is independent of the healing/application delay.
-        local progress = math.Clamp((CurTime() - start) / 0.85, 0, 1)
-        local motion = math.sin(progress * math.pi)
-        local center = EyePos() + view:Forward() * (24 - motion * 6)
-            + view:Right() * 8 - view:Up() * (8 - motion * 5)
-        local offset = LocalToWorld((low + high) * (0.5 * scale), Angle(), Vector(), angle)
-        model:SetModelScale(scale, 0)
-        model:SetPos(center - offset)
-        model:SetAngles(angle)
-        model:SetupBones()
-        model:DrawModel()
-    end
-    function SWEP:DrawWorldModel()
-        local owner = self:GetOwner()
-        if not IsValid(owner) then self:DrawModel() return end
-        owner:SetupBones()
-        local bone = owner:LookupBone("ValveBiped.Bip01_R_Hand")
-        local matrix = bone and owner:GetBoneMatrix(bone)
-        if not matrix then self:DrawModel() return end
-        local pos, ang = LocalToWorld(Vector(2, 0, -1), Angle(0, 90, 90), matrix:GetTranslation(), matrix:GetAngles())
-        self:SetRenderOrigin(pos)
-        self:SetRenderAngles(ang)
-        self:DrawModel()
-        self:SetRenderOrigin()
-        self:SetRenderAngles()
-    end
-    function SWEP:OnRemove()
-        if IsValid(self.HealthVialDisplay) then self.HealthVialDisplay:Remove() end
-    end
-end
+-- Use the model's native viewmodel and worldmodel rendering; no floating-prop override.
