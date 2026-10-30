@@ -8,54 +8,6 @@ This customized version is based on [ACF-3-SWEPs](https://github.com/ACF-Team/AC
 
 ## Recent Changes
 
-### AT4 hidden reload with one replacement draw — October 30, 2026
-
-The first-person AT4 and matching hands hide immediately on a valid reload request, then become visible when one second remains. The existing single-transport, once-per-reload replacement draw starts at one second remaining and is fitted to that final second. No second draw is started at zero. Visibility prediction does not alter server ammo or timing checks, and repeated requests do not extend the initial hide window. Four-second reload timing, aiming, HUD, C4 settings and other equipment are unchanged. Mocked visibility and reload timeline checks passed; final appearance needs in-game confirmation.
-
-### AT4 single-path animation playback — October 30, 2026
-
-AT4 named animations now use only the server-to-owner animation message, without also changing the server viewmodel sequence or starting a second predicted client playback. This removes duplicate animation-start paths that could restart the replacement draw around the reload deadline. The replacement draw remains guarded once per reload and starts during its final approximately 0.97 seconds, with no additional draw at zero. Other users of the named-animation helper retain their existing playback behavior. Four-second reload timing, visible toss/draw, latest sight position, HUD, C4 range and gameplay remain unchanged. Mocked lifecycle and transport checks passed; in-game confirmation is still needed.
-
-### AT4 vertical sight fine adjustment — October 30, 2026
-
-Lowered the aimed AT4 viewmodel by 0.13 units, changing only the sight height from 0.8 to 0.67. This puts the crosshair higher within the sight opening, without offsetting the HUD crosshair from the actual firing direction. Horizontal position, angles, hip position, reload timing, HUD style, ballistics and other equipment are unchanged. Screenshot-based visual alignment still requires in-game confirmation.
-
-### AT4 aimed view moved slightly left — October 30, 2026
-
-Moved the AT4 aimed viewmodel 0.35 units left, changing the horizontal sight offset from -0.95 to -1.30 based on the latest screenshot and requested viewing clearance. Height (0.8), forward offset (0), angles, hip position, toss/draw reload timing, HUD, C4 settings and all gameplay remain unchanged. The final appearance requires an in-game check.
-
-### AT4 toss/draw reload timing — October 30, 2026
-
-Stopped stretching `base_toss` across the entire four-second ammo reload. It now plays for its compiled natural duration (40/31 seconds, approximately 1.29 s). The non-looping final toss pose is retained during the wait, without an idle reset that could snap the empty launcher back into view. `base_draw` starts once during the last 29/30 seconds (approximately 0.97 s) of the reload, rather than after ammo becomes ready. No visibility override is used: movement out of/into view comes from the model animation. The four-second reload, aiming, HUD, ballistics, C4 settings and other equipment are unchanged. Timing was checked with a mocked reload lifecycle; final appearance still needs an in-game check.
-
-### Additional 15% C4 throw reduction — October 30, 2026
-
-Reduced the current stationary, level-ground C4 throw target by another 15%, from 510 to 433.5 units (approximately 434). Forward speed is now 578 units/s, with 100 units/s upward plus player movement velocity. Existing per-charge gravity calibration targets the shorter range; movement, aim, terrain and physics affect actual reach. Other equipment, C4 damage, penetration, attachment, limits and HUD are unchanged.
-
-### Diagonal AT4 Q-menu preview — October 30, 2026
-
-Rotated the single AT4 menu image 25 degrees to match the diagonal presentation of the other weapons. The existing aspect-preserving rotated-bounds fit keeps it centered with the same 75% scale and clear margins. The transparent image, equipped model, aiming, reload, HUD and gameplay are unchanged.
-
-### AT4 rear-aperture correction — October 30, 2026
-
-The latest screenshot shows the large rear sight aperture left of and below the crosshair. Changed the aimed viewmodel offset from `(-1.721, 0, 0.479)` to `(-0.95, 0, 0.8)` to move the model right/up toward screen center. Sight angles and forward position are retained. The donor source was inspected: it does not apply the model's `delta_iron` sequence, so no extra animation layer was added. Reload remains visible. This is a screenshot-based correction and needs in-game validation; gameplay, HUD, C4 range and other weapons are unchanged.
-
-### AT4 reload visibility restored — October 30, 2026
-
-Removed the AT4-specific reload visibility overrides. The launcher viewmodel and matching Insurgency hands are no longer forcibly hidden during reload; the bundled toss/draw animation can render normally. Reload timing, aiming offsets, HUD, ballistics and other weapons are unchanged.
-
-### C4 throwing range reduced 15% — October 30, 2026
-
-Reduced the stationary, level-ground C4 throw target from approximately 600 to 510 units (15% less). Forward launch speed is reduced from 800 to 680 units/s; upward speed remains 100 units/s, with player movement velocity added. The existing per-charge gravity calibration targets the shorter range. Actual reach varies with movement, aim, terrain and physics. Damage, penetration, attachment, limits, HUD and other equipment are unchanged.
-
-### AT4 aimed position moved left — October 30, 2026
-
-Moved only the AT4 horizontal iron-sight offset from -1.371 to -1.721 (0.35 units left). Height, forward position, sight angles, reload presentation, HUD and gameplay remain unchanged. Visual alignment requires an in-game check.
-
-### AT4 aiming regression rollback — October 30, 2026
-
-Reverted the screenshot-based AT4 sight offset to the original `(-1.371, 0, 0.479)` and restored camera-basis translation. The previous left/up adjustment and rotated translation basis caused visible clipping in the supplied in-game screenshot. Incoming view angles are still copied, sprint rotation remains excluded while aiming, and reload hiding is retained. This rolls back the failed alignment adjustment; exact iron-sight alignment still requires an in-game check. Ballistics, guidance, HUD, assets and other weapons are unchanged.
-
 ### Storage reduction without removing equipment — October 30, 2026
 
 Repacked selected large uncompressed AMR/XM25 textures into Source-compatible DXT5, keeping their existing dimensions, mip levels, normal-map flags, thumbnails and alpha content. This reduces disk/GPU texture storage without reducing resolution or changing UVs; standard block compression introduces small color/normal differences. Compression checks measure decoded pixel error; textures exceeding the conservative error threshold stay in their original format. Existing compressed textures, including the optimized AT4/syringe and appropriately sized C4/Claymore textures, are retained.
@@ -77,32 +29,6 @@ The charge attaches directly to the struck child, using contact position and ang
 ### Native C4 and Claymore fragment penetration — October 30, 2026
 
 Both explosives now calibrate their native AP fragments to **120 mm RHA penetration at launch**, increased from 40 mm. This changes the shared server-side penetration target used to solve fragment velocity through the installed ACF AP penetration function; it is not a display-only number. Each retains 60 fragments: radial for C4 and forward-directed for Claymore. Impact penetration still follows native velocity loss, armor slope and other ACF rules; native HE blast/casing damage is separate and does not have one fixed penetration value. Blast reach, active limits, C4 throw calibration, models, animations, HUD and menu icons are unchanged.
-
-### C4 throw velocity and level-ground reach — October 30, 2026
-
-C4 now launches at **800 units/s forward + 100 units/s upward + the player's current velocity**. To target approximately **600 units from the player on a stationary, level throw**, the thrown charge calculates per-device downward acceleration from its release height, model ground clearance and forward release offset. Native gravity and aerodynamic drag are disabled only for that calibrated C4 flight; the physics-update hook applies the calculated gravity impulse. Collision and sticky placement still use native physics, and no global gravity setting is changed. If no usable ground reference exists below the player, ordinary physics is retained.
-
-The 600-unit value is a clear, flat-ground calibration target, not a hard range cap or guaranteed landing point. Aim angle, movement, obstacles, uneven terrain, tumbling and server physics stepping can change the result; in-game range confirmation is still needed. Claymore placement, other grenades, HUD, damage and active limits are unchanged.
-
-### Single-launcher AT4 Q-menu image — October 30, 2026
-
-Replaced the two-view AT4 menu image with the selected single-launcher transparent image. The existing centered, aspect-preserving 75% menu scale is retained. This changes only the bundled image and documentation; the AT4 sight adjustment, HUD, models and gameplay are unchanged.
-
-### AT4 iron-sight alignment — October 30, 2026
-
-Adjusted the AT4's aimed viewmodel position left/up from `(-1.371, 0, 0.479)` to `(-2.75, 0, 0.85)` using the supplied screenshot's rear-aperture displacement. The AT4 now applies its sight translation in the rotated viewmodel basis, following the Insurgency transform convention, and copies the incoming angle before modifying it. Sprint presentation is excluded while aiming. This is a presentation adjustment only; aim direction, ACF ballistics, wire guidance, accuracy, reload timing, HUD, menu icons and other weapons remain unchanged. Exact rear/front-sight alignment needs an in-game visual check; no Garry's Mod renderer is available for verification here.
-
-### Transparent C4 Q-menu image — October 29, 2026
-
-The C4 Q-menu entry now uses the supplied explosive-charge image with a transparent background, centered at 75% image scale. Its original aspect ratio is preserved, with margins matching the other equipment previews. The PNG is bundled and registered for client download. Only the menu image changes; models, animations, HUD, 15-charge active limit, blast and fragment settings are unchanged.
-
-### Transparent AT4 Q-menu image — October 29, 2026
-
-The AT4 Q-menu entry now uses the supplied two-view launcher image with a transparent background. It is centered at 75% image scale with its original aspect ratio preserved and no additional rotation, matching the other launcher previews. The PNG is bundled and registered for client download. Weapon models, animations, ammunition, damage, guidance, HUD and limits are unchanged.
-
-### Transparent BO1 Claymore Q-menu image — October 29, 2026
-
-The Claymore now uses the supplied olive-green mine image with a transparent background, centered at 75% menu-image scale. The existing icon renderer preserves its aspect ratio and leaves consistent margins. The PNG is bundled and registered for client download. Only the Q-menu image changes; models, animations, HUD, explosive settings and active limits are unchanged.
 
 ### Claymore blast reach and 40 mm fragments — October 29, 2026
 
@@ -138,52 +64,19 @@ The entries below describe earlier builds; the AT4/C4 replacement above supersed
 
 The Alyx health stim's diffuse, normal and liquid textures now use their original 1024 × 1024 mip levels instead of 2048 × 2048, saving 12 MiB extracted. Their DXT5 format, alpha channels, flags and remaining mip data are preserved without recompression. View/world models, player hands, animation sequences, Q-menu image, sounds, healing and protection are unchanged. Close-up texture detail is reduced; visual appearance still needs confirmation in Garry's Mod.
 
-### Asset size reduction — October 29, 2026
-
-Removed nine unused Javelin scope-material pairs for unsupported display modes (CLU, lock, night, top attack, and target indicators). The six scope layers used by this pack remain at their original resolution. The bundled CoD arm diffuse and normal textures now use their original 2048 × 1024 mip levels instead of 4096 × 2048; lower mip levels and texture formats are preserved without recompression. Weapon-body textures, model/animation files, sounds, icons, HUD and gameplay code are unchanged. The client download manifest no longer lists the removed files. This modestly reduces close-up arm detail; appearance still needs an in-game check.
-
 ### Gradual, randomized grenade fire — October 28, 2026
 
 Fire now ignites near the grenade first and spreads outward over approximately 2–2.3 seconds on suitable ground. Patch centers have small random offsets while retaining overlapping coverage; each patch starts dealing damage only once it ignites. Flame timing, size, lifetime, color and motion vary independently between patches. The 15-second duration still starts at detonation, with unchanged 120-unit patch radius, 250-unit maximum reach, character damage, and wall/water checks. Overlapping patches still do not stack damage.
 
-### Health Stim Q-menu image — October 28, 2026
-
-The Health Stim now uses the selected transparent syringe image, with its lime chamber, red cross and slight tilt. The preview preserves the image's proportions and is centered at 75% image scale for consistent menu margins. Only its Q-menu image changes; the Alyx models, injection animations, healing, protection and controls are unchanged.
-
-### Thrown C4 model fix — October 28, 2026
-
-Thrown and planted C4 now uses the donor's separate charge model, `models/krazy/cod4rm/misc/c4.mdl`, with its physics and mesh companion files bundled. The equipped weapon keeps its existing detonator presentation. Throwing, sticking, arming, remote controls and ACF damage settings are unchanged.
-
 ### Automatic XM25 — October 28, 2026
 
 The XM25 now fires automatically while the trigger is held. Its existing 0.3-second shot interval (200 rounds/minute), 12-round magazine, reserve ammunition, accuracy, recoil, and 25 mm HE projectile settings are unchanged.
-
-### C4 and claymore Q-menu previews — October 28, 2026
-
-The C4 and claymore thumbnails now use centered previews at 65% of the tile's available image area, giving them margins consistent with the other items. Their existing upright orientation is preserved. This affects only the Q-menu images; their models, animations, controls and explosive settings are unchanged.
-
-### Javelin Q-menu preview — October 28, 2026
-
-The Javelin menu preview is rotated into a flatter side pose and fitted at 75% of the available rotated-image bounds, keeping it centered with consistent margins. This changes only its Q-menu thumbnail; other icons retain their existing layout. Equipped models, animations, HUD, and weapon settings are unchanged.
-
-### Javelin scope-entry visibility — October 28, 2026
-
-The Javelin model and built-in arms are hidden from the start of aiming, covering the 0.75-second scope-entry transition as well as the final scoped view. This prevents the animated scope housing from filling the camera before the overlay appears. The world view remains visible during the transition, and the ammo/status panel continues drawing. Scope delay, zoom, reload timing, guidance and damage settings are unchanged.
-
-### Javelin reload presentation — October 28, 2026
-
-The Javelin viewmodel and its built-in arms are hidden for the reload interval, preventing the glitched reload animation from appearing on screen. The ammo/status HUD stays visible. Reload duration remains four seconds; the model is shown again when reloading finishes unless the scope view is active. No global viewmodel visibility settings or other weapons are changed.
-
-### Javelin HUD fix — October 28, 2026
-
-The Javelin now calls the pack's ammo/status HUD directly in both aimed and unaimed views. The panel draws after its scope graphics, so the overlay does not cover it. This fixes an integration bug where the normal gun HUD hook was skipped and the custom Javelin view never drew the replacement panel. No weapon or utility balance settings changed.
 
 ### Alyx syringe presentation — October 28, 2026
 
 - The health stim now uses the bundled **HL:A Gear Medishot** viewmodel (`models/weapons/c_medishot.mdl`) and world model (`models/weapons/w_medishot.mdl`), with normal player hands and the supplied `draw`, `idle`, and `inject` sequences. The former floating health-vial prop and lift animation are removed.
 - Named animation playback uses the pack's existing owner-client animation helper, without requiring TFA or a separate HL:A Gear installation. The donor only has one injection sequence, so both self-use and healing another target reuse it, fitted to the existing action delays.
 - Healing remains **50 HP over 10 seconds**, capped at 100 (or the target's lower max health), with **15% damage reduction for 20 seconds**. Charges, repeat-use timer refreshes, other-target range checks, and the HUD remain unchanged. The original stock health-kit use sound is retained; the archive did not contain the donor Lua's referenced `items/medshot4.wav`.
-
 
 The Q-menu folder previously named **Grenades** is now **Throwables and Deployables**, containing the four throwable grenades, C4, and claymore.
 
@@ -524,26 +417,16 @@ When reporting a bug, include the weapon/item name, server ACF version or commit
 - **FrazierWing** — [SideWinderGrowl.wav](https://freesound.org/people/FrazierWing/sounds/569666/), CC0, used for the Stinger seeker tone.
 - Stinger presentation and seeker logic adapted from upstream ACF-3-SWEPs commit [`b52ea0c854c837d2d241c8ef0e1113e106f4f2eb`](https://github.com/ACF-Team/ACF-3-SWEPs/commit/b52ea0c854c837d2d241c8ef0e1113e106f4f2eb); the pack retains its VSS missile adapter and configured payload, damage path, 2-second reload, 100 reserve rounds, and movement behavior.
 - **Valve** — Source and Counter-Strike: Source game assets used through mounted content.
-- **Armor Plate Replacement** — armor model, materials, and sound from [the Workshop addon](https://steamcommunity.com/sharedfiles/filedetails/?id=2622292371), as credited in the GitHub README. These assets are third-party content, not covered by the pack's MIT code license.
+- **Armor Plate Replacement** — armor model, materials, and sound from [the Workshop addon](https://steamcommunity.com/sharedfiles/filedetails/?id=2622292371), as credited in the GitHub README.
 
 **Code license: MIT**, matching [ACF-3](https://github.com/ACF-Team/ACF-3). The original SWEP code already includes the MIT license in [LICENSE.md](LICENSE.md). Keep that notice and any applicable third-party notices. The code license does not grant ownership of Valve, Workshop, or other third-party assets. Bundled third-party assets retain their original authorship; other game assets are supplied through mounted dependencies. Respect the applicable asset licenses and redistribution terms.
 
-### Grenade audio
-
-Smoke, nerve gas, and Venomous Agent X use the finite CS:S smoke-grenade burst instead of an unmanaged looping steam sound. Fire audio is stopped on removal in both client and server code, with a client expiry check as well. Grenade damage, duration, radius, fuse, and throw settings are unchanged.
-
-### Grenade contact and fuse
-
-Thrown grenades do not physically collide with players, preventing players from standing on or pinning them. World and prop collision rules remain unchanged. A server fuse timer backs up the existing Think deadline and does not depend on movement or physics sleep. Fire-placement traces ignore characters while retaining wall, ground, and prop checks. Grenade fuse lengths and payload settings are unchanged.
-
 ### Additional bundled presentation assets
 
-The earlier Claymore presentation assets and shared arms (now removed) were extracted from the user-supplied **[TFA] CoD Remastered Explosives Pack** archive. The donor weapon files credit **Krazy** and identify the Call of Duty: Modern Warfare Remastered source. These game/Workshop assets retain their original authorship and applicable terms; they are not covered by this pack's MIT Lua license. This integration supplies separate ACF runtime code and does not bundle or depend on the donor's TFA weapon bases, missile entities, or generic explosion damage code.
+The earlier Claymore presentation assets and shared arms (now removed) were extracted from the user-supplied **[TFA] CoD Remastered Explosives Pack** archive. The donor weapon files credit **Krazy** and identify the Call of Duty: Modern Warfare Remastered source. These game/Workshop assets retain their original authorship and applicable terms. This integration supplies separate ACF runtime code and does not bundle or depend on the donor's TFA weapon bases, missile entities, or generic explosion damage code.
 
 The Medishot model and materials come from the user-supplied **[TFA] HL:A Gear** archive; its healthshot weapon credits **Mazima Gofo**. Half-Life: Alyx game assets retain Valve's authorship and applicable terms. The donor Lua healing code is not included or used, and its TFA base is not a dependency.
 
-The current Health Stim Q-menu image is the user-selected edited syringe illustration, based on the supplied injector image and in-game reference. It replaces the original donor icon in the menu.
-
 The AT4 and C4 presentation models, textures, menu images, matching Insurgency arms and selected handling/fire sounds come from the user-supplied **Insurgency Explosives Pack** archive. Its metadata gives the placeholder author name “Author Name”; it does not identify a verifiable Workshop creator. Insurgency game assets retain their original authorship and applicable terms (New World Interactive). Only selected assets are bundled, with separate ACF integration code; no donor weapon damage/entity code or external weapon base is used.
 
-The current Claymore's BO1 presentation assets are from the user-supplied **Black Ops Claymore (Sandbox)** addon. Its weapon source credits **Hoff**. Black Ops game assets retain their original authorship and applicable terms (Treyarch/Activision). These presentation assets are not covered by the pack's MIT Lua license. The previous CoD Remastered Claymore assets are no longer bundled.
+The current Claymore's BO1 presentation assets are from the user-supplied **Black Ops Claymore (Sandbox)** addon. Its weapon source credits **Hoff**. Black Ops game assets retain their original authorship and applicable terms (Treyarch/Activision).
