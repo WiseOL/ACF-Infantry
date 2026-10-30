@@ -30,6 +30,20 @@ function M.Play(weapon, name, duration)
     end
 end
 
+-- Opt-in single transport for AT4 animations. Do not also mutate the
+-- server viewmodel: its replicated sequence can restart an owner-client
+-- animation after the explicit message has already begun playing it.
+function M.PlayOwner(weapon, name, duration)
+    if not SERVER then return end
+    local owner = weapon:GetOwner()
+    if not IsValid(owner) or not owner:IsPlayer() then return end
+    net.Start("ACFInfantryNamedAnimation")
+    net.WriteEntity(weapon)
+    net.WriteString(name)
+    net.WriteFloat(duration or 0)
+    net.Send(owner)
+end
+
 -- These donor models have sequence names, not ACT_VM activity mappings.
 -- Explicit owner-client playback also works if server sequence lookup fails.
 if SERVER then

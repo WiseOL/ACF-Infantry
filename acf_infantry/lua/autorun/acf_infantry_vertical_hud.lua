@@ -45,7 +45,9 @@ function T.DrawVerticalHUD()
         elseif weapon.DeployableKind then
             count, capacity = math.max(weapon:Clip1(), 0), 1
             Row(rows, "RESERVE", math.max(weapon:Ammo1(), 0))
-            Row(rows, "DEPLOYED", tostring(weapon:GetNW2Int("InfantryDeployedCount", 0)) .. " / 4")
+            local limit = weapon.GetDeployableLimit and weapon:GetDeployableLimit()
+                or weapon.MaxDeployed or (weapon.DeployableKind == "c4" and 15 or 8)
+            Row(rows, "DEPLOYED", tostring(weapon:GetNW2Int("InfantryDeployedCount", 0)) .. " / " .. limit)
             Row(rows, "LEFT CLICK", weapon.DeployableKind == "c4" and "THROW CHARGE" or "PLANT MINE")
             if weapon.DeployableKind == "c4" then Row(rows, "RIGHT CLICK", "DETONATE YOUR C4") end
             Row(rows, "RECOVER", "USE [E] ON YOUR DEVICE")

@@ -5,12 +5,16 @@ SWEP.Category = "ACF Infantry"
 SWEP.SubCategory = "Throwables and Deployables"
 SWEP.Spawnable = true
 SWEP.DeployableKind = "c4"
-SWEP.ViewModel = "models/krazy/cod4rm/c4_v.mdl"
-SWEP.WorldModel = "models/krazy/cod4rm/c4_w.mdl"
-SWEP.IconOverride = "vgui/entities/cod4rm_c4"
-SWEP.ACFMenuImage = "vgui/entities/cod4rm_c4"
-SWEP.ACFMenuImageScale = 0.65 -- Centered menu preview with room around the device.
+SWEP.MaxDeployed = 15
+SWEP.ViewModel = "models/weapons/insurgency/v_c4_sec.mdl"
+SWEP.WorldModel = "models/weapons/insurgency/w_c4.mdl"
+SWEP.IconOverride = "vgui/acf_sweps/c4.png"
+SWEP.ACFMenuImage = "vgui/acf_sweps/c4.png"
+SWEP.ACFMenuImageScale = 0.75 -- Proportional, centered preview matching other equipment icons.
 SWEP.Primary.Ammo = "ACFInfantryC4"
 SWEP.Primary.ClipSize = 1
 SWEP.Primary.DefaultClip = 101
 SWEP.Primary.Automatic = false
+SWEP.ViewModelFOV = 69
+SWEP.DeployableSequences = {draw = "base_draw", throw = "base_throw", fire = "det_detonate", idle = "base_idle", empty = "det_idle"}
+include("acf_sweps/insurgency_hands.lua").Apply(SWEP)

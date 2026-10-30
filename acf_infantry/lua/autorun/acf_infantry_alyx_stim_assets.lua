@@ -2,7 +2,6 @@
 if SERVER then
     AddCSLuaFile()
     resource.AddFile("materials/vgui/acf_sweps/health_stim_alyx.png")
-    resource.AddFile("materials/entities/tfa_healthshot.png")
     resource.AddFile("materials/models/weapons/c_medishot/c_medishot_d.vtf")
     resource.AddFile("materials/models/weapons/c_medishot/c_medishot_n.vtf")
     resource.AddFile("materials/models/weapons/c_medishot/glowystuff_d.vtf")

@@ -1,0 +1,21 @@
+-- Black Ops 1 Claymore presentation from the user-supplied Hoff archive.
+if SERVER then
+    AddCSLuaFile()
+    resource.AddFile("materials/vgui/acf_sweps/claymore_bo1.png")
+    resource.AddFile("models/hoff/weapons/claymore/c_claymore.vvd")
+    resource.AddFile("models/hoff/weapons/claymore/c_claymore.dx90.vtx")
+    resource.AddFile("models/hoff/weapons/claymore/c_claymore.dx80.vtx")
+    resource.AddFile("models/hoff/weapons/claymore/c_claymore.mdl")
+    resource.AddFile("models/hoff/weapons/claymore/w_claymore.mdl")
+    resource.AddFile("models/hoff/weapons/claymore/w_claymore.dx90.vtx")
+    resource.AddFile("models/hoff/weapons/claymore/w_claymore.phy")
+    resource.AddFile("models/hoff/weapons/claymore/w_claymore.vvd")
+    resource.AddFile("models/hoff/weapons/claymore/w_claymore.dx80.vtx")
+    resource.AddFile("materials/models/hoff/weapons/claymore/~-gweapon_claymore_col.vmt")
+    resource.AddFile("materials/models/hoff/weapons/claymore/~-gweapon_claymore_col.vtf")
+    resource.AddFile("materials/models/hoff/weapons/claymore/weapon_claymore_col.vmt")
+    resource.AddFile("materials/models/hoff/weapons/claymore/weapon_claymore_col.vtf")
+    resource.AddFile("materials/models/hoff/weapons/claymore/weapon_claymore_nml.vtf")
+    resource.AddFile("sound/hoff/mpl/seal_claymore/ammo.wav")
+    resource.AddFile("sound/hoff/mpl/seal_claymore/plant.wav")
+end

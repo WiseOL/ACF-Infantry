@@ -1,0 +1,6 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/hoff/weapons/claymore/~-gweapon_claymore_col"
+	"$surfaceprop" "Default"
+	"$bumpmap" "models/hoff/weapons/claymore/weapon_claymore_nml"
+}
